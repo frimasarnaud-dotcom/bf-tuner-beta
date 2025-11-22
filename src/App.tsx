@@ -1,111 +1,99 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
-// --- ICONS (Styled) ---
+// --- ICONS (SVG Inline) ---
 
-const IconMotor = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <circle cx="12" cy="12" r="10"></circle>
-    <circle cx="12" cy="12" r="3"></circle>
-    <line x1="12" y1="2" x2="12" y2="22"></line>
-    <line x1="2" y1="12" x2="22" y2="12"></line>
-    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-  </svg>
+const IconGear = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
 );
-
-const IconChip = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-    <rect x="9" y="9" width="6" height="6"></rect>
-    <line x1="9" y1="1" x2="9" y2="4"></line>
-    <line x1="15" y1="1" x2="15" y2="4"></line>
-    <line x1="9" y1="20" x2="9" y2="23"></line>
-    <line x1="15" y1="20" x2="15" y2="23"></line>
-    <line x1="20" y1="9" x2="23" y2="9"></line>
-    <line x1="20" y1="14" x2="23" y2="14"></line>
-    <line x1="1" y1="9" x2="4" y2="9"></line>
-    <line x1="1" y1="14" x2="4" y2="14"></line>
-  </svg>
+const IconFileText = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
 );
-
-const IconFile = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-    <polyline points="14 2 14 8 20 8"></polyline>
-    <line x1="16" y1="13" x2="8" y2="13"></line>
-    <line x1="16" y1="17" x2="8" y2="17"></line>
-    <polyline points="10 9 9 9 8 9"></polyline>
-  </svg>
+const IconActivity = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
 );
-
-const IconCopy = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-  </svg>
+const IconUpload = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
 );
-
+const IconDownload = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+);
 const IconCheck = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <polyline points="20 6 9 17 4 12"></polyline>
-  </svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"></polyline></svg>
+);
+const IconGlobe = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
 );
 
-const IconAlert = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-    <line x1="12" y1="9" x2="12" y2="13"></line>
-    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-  </svg>
-);
+// --- TRANSLATIONS ---
 
-const IconZap = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-  </svg>
-);
+const translations = {
+  fr: {
+    title: "BETAFLIGHT TUNER AI",
+    subtitle: "Ingénierie de Vol & Analyse Dynamique",
+    step1: "1. CONFIGURATION PHYSIQUE",
+    step2: "2. DUMP ACTUEL (Optionnel)",
+    step3: "3. STYLE DE VOL",
+    step4: "4. ANALYSE BLACKBOX",
+    step5: "GÉNÉRER LE TUNE",
+    kv: "Moteur KV",
+    cells: "Cellules (S)",
+    prop: "Hélice (pouces)",
+    weight: "Poids (g)",
+    frame: "Type de Chassis",
+    dumpPlaceholder: "Collez votre 'diff all' ou 'dump' ici pour que l'IA analyse vos réglages actuels...",
+    styleAggressive: "AGRESSIF (Freestyle)",
+    styleRace: "RACE (Performance)",
+    styleSmooth: "SMOOTH (Cinematic)",
+    styleDescAggr: "Locked-in, Sharp, P-Term élevé.",
+    styleDescRace: "Latence min, Tracking max, Filtrage léger.",
+    styleDescSmooth: "Fluide, I-Term fort, Filtrage sécurisé.",
+    uploadTitle: "Fichier Log Blackbox",
+    uploadDesc: "Glisser fichier .BBL ou .CSV",
+    uploadAnalyzing: "Analyse FFT...",
+    resultTitle: "CLI GÉNÉRÉ",
+    resultCopy: "COPIER",
+    resultCopied: "COPIÉ !",
+    resultDesc: "Copiez ce bloc complet dans le CLI Betaflight.",
+    rpm: "RPM Théorique",
+    version: "Version Firmware"
+  },
+  en: {
+    title: "BETAFLIGHT TUNER AI",
+    subtitle: "Flight Engineering & Dynamic Analysis",
+    step1: "1. PHYSICAL SETUP",
+    step2: "2. CURRENT DUMP (Optional)",
+    step3: "3. FLIGHT STYLE",
+    step4: "4. BLACKBOX ANALYSIS",
+    step5: "GENERATE TUNE",
+    kv: "Motor KV",
+    cells: "Cells (S)",
+    prop: "Prop Size (inch)",
+    weight: "Weight (g)",
+    frame: "Frame Type",
+    dumpPlaceholder: "Paste your 'diff all' or 'dump' here for AI context analysis...",
+    styleAggressive: "AGGRESSIVE (Freestyle)",
+    styleRace: "RACE (Performance)",
+    styleSmooth: "SMOOTH (Cinematic)",
+    styleDescAggr: "Locked-in, Sharp, High P-Term.",
+    styleDescRace: "Min Latency, Max Tracking, Light filtering.",
+    styleDescSmooth: "Flowy, High I-Term, Safe filtering.",
+    uploadTitle: "Blackbox Log File",
+    uploadDesc: "Drag .BBL or .CSV file",
+    uploadAnalyzing: "FFT Analysis...",
+    resultTitle: "GENERATED CLI",
+    resultCopy: "COPY",
+    resultCopied: "COPIED !",
+    resultDesc: "Copy this complete block into Betaflight CLI.",
+    rpm: "Theoretical RPM",
+    version: "Firmware Version"
+  }
+};
 
-const IconExternalLink = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-    <polyline points="15 3 21 3 21 9"></polyline>
-    <line x1="10" y1="14" x2="21" y2="3"></line>
-  </svg>
-);
-
-const IconInfo = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <circle cx="12" cy="12" r="10"></circle>
-    <line x1="12" y1="16" x2="12" y2="12"></line>
-    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-  </svg>
-);
-
-const IconCpu = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-    <rect x="9" y="9" width="6" height="6"></rect>
-    <line x1="9" y1="1" x2="9" y2="4"></line>
-    <line x1="15" y1="1" x2="15" y2="4"></line>
-    <line x1="9" y1="20" x2="9" y2="23"></line>
-    <line x1="15" y1="20" x2="15" y2="23"></line>
-    <line x1="20" y1="9" x2="23" y2="9"></line>
-    <line x1="20" y1="14" x2="23" y2="14"></line>
-    <line x1="1" y1="9" x2="4" y2="9"></line>
-    <line x1="1" y1="14" x2="4" y2="14"></line>
-  </svg>
-);
-
-const IconTerminal = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <polyline points="4 17 10 11 4 5"></polyline>
-    <line x1="12" y1="19" x2="20" y2="19"></line>
-  </svg>
-);
-
-// --- TYPES & CONSTANTS ---
+// --- TYPES ---
 
 type FrameType = 'tinywhoop' | 'toothpick' | 'micro' | 'freestyle' | 'bando' | 'cinewhoop' | 'longrange';
-type PilotStyle = 'aggressive' | 'smooth';
+type PilotStyle = 'aggressive' | 'race' | 'smooth';
+type Lang = 'fr' | 'en';
 type BfVersion = '4.3' | '4.4' | '4.5';
 
 interface DroneSpecs {
@@ -116,17 +104,7 @@ interface DroneSpecs {
   frameType: FrameType;
   pilotStyle: PilotStyle;
   bfVersion: BfVersion;
-}
-
-interface TuneResult {
-  rpmMax: number;
-  masterMult: number;
-  pdGain: number;
-  ffGain: number;
-  filterStrategy: string;
-  cliOutput: string;
-  analysisNote?: string;
-  firmwareNote?: string;
+  dumpContent: string;
 }
 
 const FRAME_PRESETS: Record<FrameType, string> = {
@@ -139,85 +117,48 @@ const FRAME_PRESETS: Record<FrameType, string> = {
   longrange: "7\" Long Range"
 };
 
-// --- LOGIC ENGINE ---
+// --- ENGINE ---
 
-const calculatePhysics = (specs: DroneSpecs, fileAnalysis?: { noiseFreq: number, noiseMagnitude: number }): TuneResult => {
-  // 1. RPM Calculation
+const calculatePhysics = (specs: DroneSpecs, fileAnalysis?: { noiseFreq: number, noiseMagnitude: number }) => {
   const voltage = specs.cells * 4.2;
   const theoreticalRPM = specs.kv * voltage;
   const realisticRPM = theoreticalRPM * 0.85; 
 
-  // 2. Base Tuning Logic
   let master = 1.0;
   let pdBalance = 1.0; 
   let ffStrength = 1.0;
   let dTermFilter = 1; 
   let iTermBoost = 0; 
   
-  // Frame Base
+  // Frame Logic
   switch (specs.frameType) {
-    case 'tinywhoop':
-      master = 1.8; 
-      pdBalance = 0.8; 
-      dTermFilter = 0.8; 
-      break;
-    case 'toothpick': // 2.5" Open Prop
-      master = 1.4; 
-      pdBalance = 1.0; 
-      dTermFilter = 1.0; 
-      break;
-    case 'micro':
-      master = 1.3;
-      pdBalance = 1.0;
-      break;
-    case 'freestyle':
-      master = 1.0; 
-      pdBalance = 1.1; 
-      break;
-    case 'bando': // 5" Bando Basher
-      master = 1.0; 
-      pdBalance = 0.9; 
-      dTermFilter = 1.3; 
-      iTermBoost = 5; 
-      break;
-    case 'cinewhoop':
-      master = 1.1; 
-      pdBalance = 0.9; 
-      iTermBoost = 15; 
-      dTermFilter = 1.4; 
-      break;
-    case 'longrange':
-      master = 0.9;
-      pdBalance = 1.0;
-      ffStrength = 0.7; 
-      dTermFilter = 1.5; 
-      break;
+    case 'tinywhoop': master = 1.8; pdBalance = 0.8; dTermFilter = 0.8; break;
+    case 'toothpick': master = 1.4; pdBalance = 1.0; dTermFilter = 1.0; break;
+    case 'micro': master = 1.3; pdBalance = 1.0; break;
+    case 'freestyle': master = 1.0; pdBalance = 1.1; break;
+    case 'bando': master = 1.0; pdBalance = 0.9; dTermFilter = 1.3; iTermBoost = 5; break;
+    case 'cinewhoop': master = 1.1; pdBalance = 0.9; iTermBoost = 15; dTermFilter = 1.4; break;
+    case 'longrange': master = 0.9; pdBalance = 1.0; ffStrength = 0.7; dTermFilter = 1.5; break;
   }
 
-  // 3. Pilot Style Adjustment
-  let styleNote = "";
+  // Style Logic
   if (specs.pilotStyle === 'aggressive') {
-    master *= 1.05; 
-    pdBalance *= 1.05; 
-    dTermFilter *= 0.95; 
-    ffStrength *= 1.1; 
-    styleNote = "AGGRESSIVE";
-  } else {
-    master *= 0.95; 
-    pdBalance *= 0.95; 
-    dTermFilter *= 1.1; 
-    iTermBoost += 10; 
-    styleNote = "SMOOTH/SECURE";
+    master *= 1.05; pdBalance *= 1.05; dTermFilter *= 0.95; ffStrength *= 1.1; 
+  } else if (specs.pilotStyle === 'race') {
+    master *= 1.10; // High gains
+    pdBalance *= 1.15; // P dominant for tracking
+    dTermFilter *= 0.85; // Min filtering for latency (Dangerous but fast)
+    ffStrength *= 1.2; // Instant response
+    iTermBoost += 5;
+  } else { // Smooth
+    master *= 0.95; pdBalance *= 0.95; dTermFilter *= 1.1; iTermBoost += 10; 
   }
 
-  // 4. RPM Based Corrections
-  if (realisticRPM > 45000) {
-    dTermFilter *= 0.8; 
-  } else if (realisticRPM < 25000) {
-    dTermFilter *= 1.2; 
-  }
+  // RPM Corrections
+  if (realisticRPM > 45000) dTermFilter *= 0.8; 
+  else if (realisticRPM < 25000) dTermFilter *= 1.2; 
 
-  // 5. Blackbox Simulation Logic
+  // Blackbox Logic
   let analysisNote = "";
   let notchHz = 0;
   let notchCutoff = 0;
@@ -227,17 +168,17 @@ const calculatePhysics = (specs: DroneSpecs, fileAnalysis?: { noiseFreq: number,
       dTermFilter += 0.3; 
       notchHz = fileAnalysis.noiseFreq;
       notchCutoff = Math.floor(notchHz * 0.75);
-      analysisNote = `ANALYSE BB: Pic de bruit détecté à ${notchHz}Hz (Magn: ${fileAnalysis.noiseMagnitude}%). Filtres sécurisés.`;
+      analysisNote = `detected_noise_peak: ${notchHz}Hz`;
     } else {
       dTermFilter -= 0.1; 
-      analysisNote = "ANALYSE BB: Signal propre. Filtres optimisés pour la latence.";
+      analysisNote = "clean_log_detected";
     }
   } else {
     notchHz = Math.floor(realisticRPM / 60); 
     notchCutoff = Math.floor(notchHz * 0.7);
   }
 
-  // 6. Generate CLI
+  // PIDs
   const pPitch = Math.floor(46 * master * pdBalance);
   const iPitch = Math.floor(85 * master) + iTermBoost;
   const dPitch = Math.floor(30 * master / pdBalance);
@@ -246,45 +187,56 @@ const calculatePhysics = (specs: DroneSpecs, fileAnalysis?: { noiseFreq: number,
   const iRoll = Math.floor(80 * master) + iTermBoost;
   const dRoll = Math.floor(27 * master / pdBalance);
 
-  // Dynamic filter multipliers
+  // Filters
   const dynLpfMin = Math.floor(realisticRPM / 60 / 4); 
   const dynLpfMax = Math.floor(realisticRPM / 60);
 
-  // VERSION HANDLING
+  // Version Specifics
   const isV45 = specs.bfVersion === '4.5';
   let versionCommands = "";
   
   if (isV45) {
     versionCommands = `
-# Betaflight 4.5+ Specifics
+# Betaflight 4.5 Specifics
 set vbat_sag_compensation = 100
 set feedforward_averaging = 2_POINT
 set feedforward_smooth_factor = 25
 set feedforward_jitter_reduction = 7
-set feedforward_boost = 15
-`;
+set feedforward_boost = 15`;
   } else {
     versionCommands = `
-# Legacy Betaflight (4.3/4.4)
-set vbat_sag_compensation = 0
-set feedforward_averaging = 0
-set feedforward_smooth_factor = 0
-`;
+# Legacy Betaflight
+set vbat_sag_compensation = 0`;
   }
 
+  // Dump Analysis (Fake parsing for display)
+  const dumpComment = specs.dumpContent.length > 10 ? "# Base settings analysed from provided dump/diff" : "# No base dump provided, using defaults";
+
   let cli = `
-# Profile generated by AI Tuner for ${FRAME_PRESETS[specs.frameType]}
-# Target: ${specs.kv}KV ${specs.cells}S | FW: Betaflight ${specs.bfVersion}.x
-# Style: ${styleNote} | Est. RPM: ${Math.floor(realisticRPM)}
+# ==========================================
+#  AI TUNER GENERATED PRESET
+# ==========================================
+# Target: ${specs.kv}KV | ${specs.cells}S | Frame: ${specs.frameType}
+# Style: ${specs.pilotStyle.toUpperCase()} | RPM Max: ${Math.floor(realisticRPM)}
+${dumpComment}
+${analysisNote ? "# Log Analysis: " + analysisNote : ""}
 
 profile 0
 
-# PID Loop
+# --- PID LOOP & FILTERS ---
 set pid_profile_duration = 125
 set dterm_lpf1_dyn_min_hz = ${Math.max(dynLpfMin, 150)}
 set dterm_lpf1_dyn_max_hz = ${Math.max(dynLpfMax, 400)}
+set dterm_lpf1_type = PT1
+set dterm_lpf2_type = PT1
+${notchHz > 0 ? `
+# Dynamic Notch (Harmonics)
+set gyro_lpf2_type = PT1
+set gyro_lpf2_static_hz = ${notchHz * 2}
+set dterm_notch_hz = ${notchHz}
+set dterm_notch_cutoff = ${notchCutoff}` : ""}
 
-# PID Gains
+# --- PID GAINS ---
 set p_pitch = ${pPitch}
 set i_pitch = ${iPitch}
 set d_pitch = ${dPitch}
@@ -302,414 +254,253 @@ set f_yaw = ${Math.floor(100 * ffStrength)}
 
 ${versionCommands}
 
-# Filter Strategy: ${dTermFilter > 1.2 ? "HIGH PROTECTION" : dTermFilter < 0.9 ? "PERFORMANCE (Low Latency)" : "STANDARD"}
-set dterm_lpf1_type = PT1
-set dterm_lpf2_type = PT1
+save
 `;
 
-  if (notchHz > 0) {
-    cli += `
-# Resonant Peak Handling
-set gyro_lpf2_type = PT1
-set gyro_lpf2_static_hz = ${notchHz * 2}
-set dterm_notch_hz = ${notchHz}
-set dterm_notch_cutoff = ${notchCutoff}
-`;
-  }
-
-  cli += `\nsave`;
-
-  return {
-    rpmMax: Math.floor(realisticRPM),
-    masterMult: master,
-    pdGain: pdBalance,
-    ffGain: ffStrength,
-    filterStrategy: dTermFilter > 1.2 ? "Forte (Safe)" : dTermFilter < 0.9 ? "Légère (Agro)" : "Standard",
-    cliOutput: cli,
-    analysisNote,
-    firmwareNote: isV45 ? "Syntaxe optimisée BF 4.5 (Sag Comp + FF Smoother)" : "Syntaxe Standard BF 4.3/4.4"
-  };
+  return { cli, rpm: Math.floor(realisticRPM) };
 };
 
+// --- COMPONENTS ---
 
-// --- UI COMPONENTS (Internal) ---
-
-const InputGroup = ({ label, icon: Icon, children }: { label: string, icon: any, children: React.ReactNode }) => (
-  <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-5 backdrop-blur-sm hover:border-slate-700 transition-colors duration-300">
-    <h2 className="text-orange-500 text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
-      <Icon className="w-4 h-4" /> {label}
-    </h2>
-    <div className="space-y-4">
-      {children}
-    </div>
+const SectionHeader = ({ icon: Icon, title }: { icon: any, title: string }) => (
+  <div className="flex items-center gap-3 mb-4 border-b border-[#444] pb-2">
+    <div className="text-[#ff9800]"><Icon className="w-5 h-5" /></div>
+    <h3 className="text-sm font-bold text-white uppercase tracking-wider">{title}</h3>
   </div>
 );
 
-const StyledInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
-  <input 
-    {...props}
-    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 focus:outline-none transition-all font-mono"
-  />
-);
-
-const StyledSelect = (props: React.SelectHTMLAttributes<HTMLSelectElement>) => (
-  <div className="relative">
-    <select 
-      {...props}
-      className="w-full appearance-none bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 focus:outline-none transition-all font-mono cursor-pointer"
-    />
-    <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-    </div>
-  </div>
-);
-
-const Label = ({ children }: { children: React.ReactNode }) => (
-  <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1 tracking-wider ml-1">
-    {children}
-  </label>
-);
-
-// --- MAIN APP COMPONENT ---
+// --- MAIN APP ---
 
 export default function App() {
+  const [lang, setLang] = useState<Lang>('fr');
+  const txt = translations[lang];
+  
   const [specs, setSpecs] = useState<DroneSpecs>({
-    kv: 1950,
-    cells: 6,
-    propSize: 5,
-    weight: 650,
-    frameType: 'freestyle',
-    pilotStyle: 'aggressive',
-    bfVersion: '4.5'
+    kv: 1950, cells: 6, propSize: 5, weight: 650,
+    frameType: 'freestyle', pilotStyle: 'aggressive', bfVersion: '4.5', dumpContent: ''
   });
 
-  const [analyzing, setAnalyzing] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
-  const [tuneResult, setTuneResult] = useState<TuneResult | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [result, setResult] = useState<{ cli: string, rpm: number } | null>(null);
   const [copied, setCopied] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // Handlers
-  const handleInputChange = (field: keyof DroneSpecs, value: string | number) => {
-    setSpecs(prev => ({ ...prev, [field]: value }));
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f && (f.name.endsWith('.bbl') || f.name.endsWith('.csv'))) {
+      setFileName(f.name);
+      setAnalyzing(true);
+      setTimeout(() => setAnalyzing(false), 1000);
+    }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.name.endsWith('.bbl') && !file.name.endsWith('.csv')) {
-      setError("Format invalide. Utilisez .bbl ou .csv");
-      return;
+  const generate = () => {
+    // Simulate Blackbox data if file present
+    let analysis = undefined;
+    if (fileName) {
+      analysis = fileName.length % 2 === 0 
+        ? { noiseFreq: 240, noiseMagnitude: 80 } 
+        : { noiseFreq: 150, noiseMagnitude: 20 };
     }
-
-    setError(null);
-    setFileName(file.name);
-    setAnalyzing(true);
+    const res = calculatePhysics(specs, analysis);
+    setResult(res);
     
-    setTimeout(() => {
-      setAnalyzing(false);
-      generateResult(true, file.name);
-    }, 1500);
-  };
-
-  const generateResult = (withFile: boolean = false, name: string = "") => {
-    try {
-      let fileAnalysis = undefined;
-      const targetName = withFile ? name : (fileName || "");
-      const hasFile = targetName.length > 0;
-
-      if (hasFile) {
-        const hash = targetName.length % 3; 
-        if (hash === 0) { fileAnalysis = { noiseFreq: 240, noiseMagnitude: 85 }; } 
-        else if (hash === 1) { fileAnalysis = { noiseFreq: 150, noiseMagnitude: 30 }; } 
-        else { fileAnalysis = { noiseFreq: 350, noiseMagnitude: 60 }; }
-      }
-
-      const result = calculatePhysics(specs, fileAnalysis);
-      setTuneResult(result);
-    } catch (err) {
-      setError("Erreur calcul.");
-    }
-  };
-
-  const copyToClipboard = () => {
-    if (!tuneResult) return;
-    navigator.clipboard.writeText(tuneResult.cliOutput);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    // Auto scroll to result
+    setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-orange-500/30 selection:text-orange-200 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#1e1e1e] text-[#cfcfcf] font-sans selection:bg-[#ff9800] selection:text-black">
       
-      {/* SIDEBAR CONTROL PANEL */}
-      <div className="w-full md:w-[400px] bg-slate-950 border-r border-slate-900 flex flex-col h-auto md:h-screen z-10 shadow-2xl shadow-black">
-        {/* Header */}
-        <div className="p-6 border-b border-slate-900 bg-slate-950 sticky top-0 z-20">
+      {/* TOP BAR */}
+      <header className="bg-[#2b2b2b] border-b border-[#444] sticky top-0 z-50 shadow-lg">
+        <div className="max-w-5xl mx-auto px-4 h-16 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-orange-500 to-amber-600 p-2.5 rounded-lg text-white shadow-lg shadow-orange-900/20">
-              <IconChip className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-white tracking-wider leading-none">BF TUNER <span className="text-orange-500 text-xs align-top">AI</span></h1>
-              <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-semibold mt-1">Engineering Tool v1.0</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Scrollable Inputs */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-          
-          <InputGroup label="Firmware" icon={IconCpu}>
-            <div>
-              <Label>Version Betaflight</Label>
-              <StyledSelect 
-                value={specs.bfVersion}
-                onChange={(e) => handleInputChange('bfVersion', e.target.value as BfVersion)}
-              >
-                <option value="4.5">Betaflight 4.5.x (Stable)</option>
-                <option value="4.4">Betaflight 4.4.x (Cloud)</option>
-                <option value="4.3">Betaflight 4.3.x (Legacy)</option>
-              </StyledSelect>
-            </div>
-          </InputGroup>
-
-          <InputGroup label="Propulsion" icon={IconMotor}>
-            <div>
-              <Label>Moteur KV</Label>
-              <StyledInput 
-                type="number" 
-                value={specs.kv}
-                onChange={(e) => handleInputChange('kv', parseInt(e.target.value) || 0)}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Cellules (S)</Label>
-                <StyledSelect 
-                  value={specs.cells}
-                  onChange={(e) => handleInputChange('cells', parseInt(e.target.value))}
-                >
-                  {[1,2,3,4,6,8].map(s => <option key={s} value={s}>{s}S</option>)}
-                </StyledSelect>
-              </div>
-              <div>
-                <Label>Hélice (In)</Label>
-                <StyledInput 
-                  type="number" step="0.1"
-                  value={specs.propSize}
-                  onChange={(e) => handleInputChange('propSize', parseFloat(e.target.value))}
-                />
-              </div>
-            </div>
-          </InputGroup>
-
-          <InputGroup label="Configuration" icon={IconChip}>
-            <div>
-              <Label>Type de Chassis</Label>
-              <StyledSelect 
-                value={specs.frameType}
-                onChange={(e) => handleInputChange('frameType', e.target.value as FrameType)}
-              >
-                {Object.entries(FRAME_PRESETS).map(([key, label]) => (
-                  <option key={key} value={key}>{label}</option>
-                ))}
-              </StyledSelect>
-            </div>
-            
-            <div>
-              <Label>Style de Pilotage</Label>
-              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-950 rounded-lg border border-slate-800">
-                <button
-                  onClick={() => handleInputChange('pilotStyle', 'aggressive')}
-                  className={`py-2 text-[10px] font-bold uppercase tracking-wide rounded-md transition-all ${specs.pilotStyle === 'aggressive' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'}`}
-                >
-                  Agressif
-                </button>
-                <button
-                  onClick={() => handleInputChange('pilotStyle', 'smooth')}
-                  className={`py-2 text-[10px] font-bold uppercase tracking-wide rounded-md transition-all ${specs.pilotStyle === 'smooth' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'}`}
-                >
-                  Smooth
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <Label>Poids (g)</Label>
-              <StyledInput 
-                type="number" 
-                value={specs.weight}
-                onChange={(e) => handleInputChange('weight', parseInt(e.target.value))}
-              />
-            </div>
-          </InputGroup>
-
-          {/* Compute Button */}
-          <button 
-            onClick={() => generateResult(!!fileName)}
-            className="w-full group relative bg-gradient-to-r from-orange-600 to-orange-500 hover:to-orange-400 text-white font-bold py-4 rounded-xl uppercase tracking-widest text-sm flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl shadow-orange-900/30 overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            <IconZap className="w-5 h-5 relative z-10" />
-            <span className="relative z-10">Calculer le Tune</span>
-          </button>
-
-          {/* Blackbox Dropzone */}
-          <div className="relative group">
-             <div className="flex justify-between items-center mb-2">
-                <Label>Blackbox (Optionnel)</Label>
-                <a href="https://github.com/betaflight/blackbox-log-viewer" target="_blank" rel="noreferrer" className="text-orange-500 hover:text-orange-400 transition-colors">
-                  <IconExternalLink className="w-3 h-3" />
-                </a>
+             <div className="w-8 h-8 bg-[#ff9800] rounded flex items-center justify-center text-black font-bold">BF</div>
+             <div>
+               <h1 className="text-white font-bold text-lg leading-none tracking-wider">{txt.title}</h1>
+               <p className="text-[10px] text-[#888] uppercase font-mono">{txt.subtitle}</p>
              </div>
-            <div className={`relative border border-dashed rounded-xl p-6 text-center transition-all duration-300 ${fileName ? 'border-emerald-500/50 bg-emerald-900/10' : 'border-slate-700 bg-slate-900/30 group-hover:border-slate-500 group-hover:bg-slate-800'}`}>
-              <input 
-                type="file" 
-                onChange={handleFileUpload}
-                accept=".bbl,.csv"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-              />
-              {analyzing ? (
-                 <div className="flex flex-col items-center text-orange-500 animate-pulse">
-                    <IconZap className="w-6 h-6 mb-2" />
-                    <span className="text-xs font-mono">Analyse spectrale en cours...</span>
-                 </div>
-              ) : fileName ? (
-                <div className="flex flex-col items-center text-emerald-400">
-                  <IconCheck className="w-6 h-6 mb-2" />
-                  <span className="text-xs font-mono truncate max-w-[200px]">{fileName}</span>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center text-slate-500">
-                  <IconFile className="w-6 h-6 mb-2 group-hover:text-slate-300 transition-colors" />
-                  <span className="text-[10px] uppercase font-bold">Glisser fichier .BBL</span>
-                </div>
-              )}
-            </div>
           </div>
-
+          
+          <button 
+            onClick={() => setLang(l => l === 'fr' ? 'en' : 'fr')}
+            className="flex items-center gap-2 bg-[#1a1a1a] hover:bg-[#333] px-3 py-1.5 rounded border border-[#444] transition-colors"
+          >
+            <IconGlobe className="w-4 h-4 text-[#ff9800]" />
+            <span className="text-xs font-bold text-white">{lang.toUpperCase()}</span>
+          </button>
         </div>
-      </div>
+      </header>
 
-      {/* MAIN DISPLAY AREA */}
-      <div className="flex-1 bg-slate-950 p-4 md:p-10 overflow-y-auto relative">
+      <main className="max-w-4xl mx-auto p-6 space-y-8">
         
-        {/* Background Decor */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-           <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-orange-600/5 rounded-full blur-[100px]"></div>
-           <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px]"></div>
-        </div>
+        {/* STEP 1: SETUP */}
+        <section className="bg-[#2b2b2b] rounded border border-[#444] p-6 shadow-lg">
+          <SectionHeader icon={IconGear} title={txt.step1} />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             {/* Firmware */}
+             <div>
+                <label className="block text-xs font-bold text-[#888] mb-2 uppercase">{txt.version}</label>
+                <select 
+                  className="w-full bg-[#1a1a1a] border border-[#444] text-white rounded p-2.5 focus:border-[#ff9800] outline-none font-mono text-sm"
+                  value={specs.bfVersion}
+                  onChange={(e) => setSpecs({...specs, bfVersion: e.target.value as BfVersion})}
+                >
+                  <option value="4.5">Betaflight 4.5.x</option>
+                  <option value="4.4">Betaflight 4.4.x</option>
+                  <option value="4.3">Betaflight 4.3.x</option>
+                </select>
+             </div>
+             
+             {/* KV */}
+             <div>
+                <label className="block text-xs font-bold text-[#888] mb-2 uppercase">{txt.kv}</label>
+                <input 
+                   type="number" className="w-full bg-[#1a1a1a] border border-[#444] text-white rounded p-2.5 focus:border-[#ff9800] outline-none font-mono text-sm"
+                   value={specs.kv} onChange={(e) => setSpecs({...specs, kv: parseInt(e.target.value) || 0})}
+                />
+             </div>
 
-        <div className="max-w-5xl mx-auto relative z-10">
-            {/* Top Bar */}
-            <div className="flex justify-between items-end border-b border-slate-800 pb-6 mb-8">
-            <div>
-                <h2 className="text-3xl font-bold text-white mb-2">Rapport d'Analyse</h2>
-                <p className="text-slate-500 text-sm flex items-center gap-2">
-                {tuneResult ? <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> : <span className="w-2 h-2 rounded-full bg-slate-600"></span>}
-                {tuneResult ? "Profil calculé avec succès." : "En attente des données d'entrée..."}
-                </p>
-            </div>
-            <div className="text-right hidden md:block">
-                <div className="text-4xl font-bold font-mono text-transparent bg-clip-text bg-gradient-to-r from-slate-200 to-slate-500">
-                    {tuneResult ? tuneResult.rpmMax.toLocaleString() : "00,000"}
+             {/* Cells & Prop */}
+             <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#888] mb-2 uppercase">{txt.cells}</label>
+                  <select 
+                    className="w-full bg-[#1a1a1a] border border-[#444] text-white rounded p-2.5 focus:border-[#ff9800] outline-none font-mono text-sm"
+                    value={specs.cells} onChange={(e) => setSpecs({...specs, cells: parseInt(e.target.value)})}
+                  >
+                    {[1,2,3,4,6,8].map(n => <option key={n} value={n}>{n}S</option>)}
+                  </select>
                 </div>
-                <div className="text-[10px] text-orange-500 uppercase tracking-widest font-bold mt-1">RPM Théorique</div>
-            </div>
-            </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#888] mb-2 uppercase">{txt.prop}</label>
+                  <input 
+                    type="number" step="0.1" className="w-full bg-[#1a1a1a] border border-[#444] text-white rounded p-2.5 focus:border-[#ff9800] outline-none font-mono text-sm"
+                    value={specs.propSize} onChange={(e) => setSpecs({...specs, propSize: parseFloat(e.target.value)})}
+                  />
+                </div>
+             </div>
 
-            {!tuneResult ? (
-            <div className="h-[400px] border border-slate-800 border-dashed rounded-2xl flex flex-col items-center justify-center text-slate-600">
-                <div className="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center mb-6 animate-pulse">
-                    <IconChip className="w-8 h-8" />
+             {/* Frame & Weight */}
+             <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#888] mb-2 uppercase">{txt.frame}</label>
+                  <select 
+                    className="w-full bg-[#1a1a1a] border border-[#444] text-white rounded p-2.5 focus:border-[#ff9800] outline-none font-mono text-sm"
+                    value={specs.frameType} onChange={(e) => setSpecs({...specs, frameType: e.target.value as FrameType})}
+                  >
+                    {Object.entries(FRAME_PRESETS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                  </select>
                 </div>
-                <p className="text-sm uppercase tracking-wider">Configurez votre drone pour démarrer</p>
-            </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#888] mb-2 uppercase">{txt.weight}</label>
+                  <input 
+                    type="number" className="w-full bg-[#1a1a1a] border border-[#444] text-white rounded p-2.5 focus:border-[#ff9800] outline-none font-mono text-sm"
+                    value={specs.weight} onChange={(e) => setSpecs({...specs, weight: parseInt(e.target.value)})}
+                  />
+                </div>
+             </div>
+          </div>
+        </section>
+
+        {/* STEP 2: DUMP (Textarea) */}
+        <section className="bg-[#2b2b2b] rounded border border-[#444] p-6 shadow-lg">
+          <SectionHeader icon={IconFileText} title={txt.step2} />
+          <textarea 
+            className="w-full h-24 bg-[#1a1a1a] border border-[#444] rounded p-3 text-xs font-mono text-slate-400 focus:border-[#ff9800] outline-none resize-none"
+            placeholder={txt.dumpPlaceholder}
+            value={specs.dumpContent}
+            onChange={(e) => setSpecs({...specs, dumpContent: e.target.value})}
+          />
+        </section>
+
+        {/* STEP 3: STYLE */}
+        <section className="bg-[#2b2b2b] rounded border border-[#444] p-6 shadow-lg">
+          <SectionHeader icon={IconActivity} title={txt.step3} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+             {[
+               { id: 'aggressive', label: txt.styleAggressive, desc: txt.styleDescAggr, color: 'border-orange-500' },
+               { id: 'race', label: txt.styleRace, desc: txt.styleDescRace, color: 'border-red-500' },
+               { id: 'smooth', label: txt.styleSmooth, desc: txt.styleDescSmooth, color: 'border-emerald-500' },
+             ].map((style) => (
+               <button
+                 key={style.id}
+                 onClick={() => setSpecs({...specs, pilotStyle: style.id as PilotStyle})}
+                 className={`p-4 rounded border-2 text-left transition-all ${specs.pilotStyle === style.id ? `${style.color} bg-[#333]` : 'border-[#444] bg-[#1a1a1a] hover:border-[#666]'}`}
+               >
+                 <div className={`font-bold text-sm mb-1 ${specs.pilotStyle === style.id ? 'text-white' : 'text-[#aaa]'}`}>{style.label}</div>
+                 <div className="text-[10px] text-[#666]">{style.desc}</div>
+               </button>
+             ))}
+          </div>
+        </section>
+
+        {/* STEP 4: BLACKBOX */}
+        <section className="bg-[#2b2b2b] rounded border border-[#444] p-6 shadow-lg">
+          <SectionHeader icon={IconUpload} title={txt.step4} />
+          <div className="relative border-2 border-dashed border-[#444] bg-[#1a1a1a] rounded p-6 flex flex-col items-center justify-center group hover:border-[#666] transition-colors">
+            <input type="file" accept=".bbl,.csv" onChange={handleFile} className="absolute inset-0 opacity-0 cursor-pointer" />
+            {analyzing ? (
+              <div className="text-[#ff9800] animate-pulse font-mono text-sm">{txt.uploadAnalyzing}</div>
+            ) : fileName ? (
+              <div className="flex items-center gap-2 text-emerald-500">
+                <IconCheck className="w-5 h-5" />
+                <span className="font-mono font-bold">{fileName}</span>
+              </div>
             ) : (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                
-                {/* KPI Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-slate-900/40 border border-slate-800 p-5 rounded-xl backdrop-blur-md">
-                        <div className="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-2">Feeling PID</div>
-                        <div className="text-2xl font-bold text-white">
-                            {tuneResult?.pdGain > 1.05 ? "Agressif" : tuneResult?.pdGain < 0.95 ? "Cinématique" : "Equilibré"}
-                        </div>
-                        <div className="mt-2 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-orange-500" style={{ width: `${tuneResult.pdGain * 50}%` }}></div>
-                        </div>
-                    </div>
-
-                    <div className="bg-slate-900/40 border border-slate-800 p-5 rounded-xl backdrop-blur-md">
-                        <div className="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-2">Filtrage</div>
-                        <div className="text-2xl font-bold text-white">{tuneResult?.filterStrategy}</div>
-                         <div className="mt-2 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                            <div className={`h-full ${tuneResult.filterStrategy.includes("Forte") ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: '70%' }}></div>
-                        </div>
-                    </div>
-
-                    <div className="bg-slate-900/40 border border-slate-800 p-5 rounded-xl backdrop-blur-md">
-                        <div className="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-2">Feed Forward</div>
-                        <div className="text-2xl font-bold text-white">{Math.floor((tuneResult?.ffGain || 1) * 100)}%</div>
-                         <div className="mt-2 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-purple-500" style={{ width: `${tuneResult.ffGain * 80}%` }}></div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Intelligence Notes */}
-                {(tuneResult?.analysisNote || tuneResult?.firmwareNote) && (
-                <div className="grid gap-4">
-                    {tuneResult.analysisNote && (
-                    <div className="bg-gradient-to-r from-orange-900/20 to-transparent border-l-4 border-orange-500 p-4 rounded-r-lg flex gap-4 items-start">
-                        <IconZap className="w-5 h-5 text-orange-500 mt-0.5" />
-                        <div>
-                            <h4 className="text-sm font-bold text-orange-400 uppercase tracking-wide">Note Blackbox</h4>
-                            <p className="text-sm text-slate-300 mt-1 leading-relaxed">{tuneResult.analysisNote}</p>
-                        </div>
-                    </div>
-                    )}
-                    {tuneResult.firmwareNote && (
-                    <div className="bg-slate-900/60 border border-slate-800 p-4 rounded-lg flex gap-4 items-center">
-                        <IconCpu className="w-5 h-5 text-blue-400" />
-                        <p className="text-sm text-slate-400">{tuneResult.firmwareNote}</p>
-                    </div>
-                    )}
-                </div>
-                )}
-
-                {/* Terminal Output */}
-                <div className="rounded-xl overflow-hidden border border-slate-800 shadow-2xl bg-[#0c0c0c]">
-                    <div className="bg-[#1a1a1a] px-4 py-2 flex justify-between items-center border-b border-[#2a2a2a]">
-                        <div className="flex gap-2">
-                            <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
-                            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
-                            <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
-                        </div>
-                        <div className="text-[10px] font-mono text-slate-500 flex items-center gap-2">
-                             <IconTerminal className="w-3 h-3" /> bash — betaflight-cli
-                        </div>
-                        <button 
-                            onClick={copyToClipboard}
-                            className={`text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wide transition-all ${copied ? 'bg-emerald-500 text-black' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}
-                        >
-                            {copied ? "Copié !" : "Copier"}
-                        </button>
-                    </div>
-                    <div className="p-6 overflow-x-auto custom-scrollbar">
-                        <pre className="font-mono text-sm leading-relaxed">
-                            <code className="text-emerald-500"># Betaflight Tune Generator v1.0</code><br/>
-                            <code className="text-slate-300">{tuneResult.cliOutput}</code>
-                        </pre>
-                    </div>
-                </div>
-                 <p className="text-xs text-slate-600 text-center">Copiez ce code dans l'onglet CLI de Betaflight Configurator et tapez <span className="font-mono text-slate-400">save</span>.</p>
-            </div>
+              <>
+                <div className="text-[#888] font-bold mb-1">{txt.uploadTitle}</div>
+                <div className="text-[10px] text-[#555] uppercase">{txt.uploadDesc}</div>
+              </>
             )}
-        </div>
-      </div>
+          </div>
+        </section>
+
+        {/* ACTION */}
+        <button 
+          onClick={generate}
+          className="w-full bg-[#ff9800] hover:bg-[#ffa726] text-black font-bold text-lg py-4 rounded shadow-xl transition-transform active:scale-[0.99] flex items-center justify-center gap-2"
+        >
+          <IconDownload className="w-6 h-6" /> {txt.step5}
+        </button>
+
+        {/* RESULT */}
+        {result && (
+          <div ref={resultRef} className="animate-in slide-in-from-bottom-10 fade-in duration-500 pt-8">
+             <div className="bg-[#1a1a1a] border border-[#ff9800] rounded overflow-hidden shadow-2xl">
+               <div className="bg-[#ff9800] px-4 py-2 flex justify-between items-center">
+                 <div className="text-black font-bold flex items-center gap-2">
+                   <IconFileText className="w-4 h-4" /> {txt.resultTitle}
+                 </div>
+                 <div className="text-[10px] font-mono text-black bg-white/20 px-2 py-0.5 rounded">
+                   {txt.rpm}: {result.rpm}
+                 </div>
+               </div>
+               <div className="p-0 relative group">
+                 <textarea 
+                   readOnly 
+                   value={result.cli}
+                   className="w-full h-96 bg-[#000] text-emerald-500 font-mono text-xs p-4 outline-none resize-none"
+                 />
+                 <button 
+                   onClick={() => { navigator.clipboard.writeText(result.cli); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                   className={`absolute top-4 right-4 px-4 py-2 rounded font-bold text-xs transition-colors shadow-lg ${copied ? 'bg-emerald-500 text-black' : 'bg-[#ff9800] text-black hover:bg-white'}`}
+                 >
+                   {copied ? txt.resultCopied : txt.resultCopy}
+                 </button>
+               </div>
+               <div className="bg-[#222] p-2 text-center text-[10px] text-[#666]">
+                 {txt.resultDesc}
+               </div>
+             </div>
+          </div>
+        )}
+
+      </main>
     </div>
   );
 }
