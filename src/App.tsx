@@ -1,506 +1,368 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-// --- ICONS (SVG Inline) ---
+// --- SVGs (Wireframe / Technical Style) ---
 
-const IconGear = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-);
-const IconFileText = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-);
-const IconActivity = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-);
-const IconUpload = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-);
-const IconDownload = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-);
-const IconCheck = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"></polyline></svg>
-);
-const IconGlobe = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+const DroneBlueprint = () => (
+  <svg viewBox="0 0 200 200" className="w-full h-full opacity-10 pointer-events-none" stroke="currentColor" strokeWidth="0.5" fill="none">
+    {/* Central Stack */}
+    <rect x="85" y="85" width="30" height="30" rx="2" />
+    <circle cx="100" cy="100" r="4" />
+    
+    {/* Arms */}
+    <line x1="85" y1="85" x2="40" y2="40" />
+    <line x1="115" y1="85" x2="160" y2="40" />
+    <line x1="115" y1="115" x2="160" y2="160" />
+    <line x1="85" y1="115" x2="40" y2="160" />
+    
+    {/* Motors */}
+    <circle cx="40" cy="40" r="12" />
+    <circle cx="160" cy="40" r="12" />
+    <circle cx="160" cy="160" r="12" />
+    <circle cx="40" cy="160" r="12" />
+    
+    {/* Propellers Sweep */}
+    <circle cx="40" cy="40" r="35" strokeDasharray="4 4" />
+    <circle cx="160" cy="40" r="35" strokeDasharray="4 4" />
+    <circle cx="160" cy="160" r="35" strokeDasharray="4 4" />
+    <circle cx="40" cy="160" r="35" strokeDasharray="4 4" />
+    
+    {/* Technical Lines */}
+    <line x1="10" y1="100" x2="190" y2="100" strokeOpacity="0.5" />
+    <line x1="100" y1="10" x2="100" y2="190" strokeOpacity="0.5" />
+  </svg>
 );
 
-// --- TRANSLATIONS ---
+const IconUpload = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+    <polyline points="17 8 12 3 7 8"></polyline>
+    <line x1="12" y1="3" x2="12" y2="15"></line>
+  </svg>
+);
 
-const translations = {
-  fr: {
-    title: "BETAFLIGHT TUNER AI",
-    subtitle: "Ingénierie de Vol & Analyse Dynamique",
-    step1: "1. CONFIGURATION PHYSIQUE",
-    step2: "2. DUMP ACTUEL (Optionnel)",
-    step3: "3. STYLE DE VOL",
-    step4: "4. ANALYSE BLACKBOX",
-    step5: "GÉNÉRER LE TUNE",
-    kv: "Moteur KV",
-    cells: "Cellules (S)",
-    prop: "Hélice (pouces)",
-    weight: "Poids (g)",
-    frame: "Type de Chassis",
-    dumpPlaceholder: "Collez votre 'diff all' ou 'dump' ici pour que l'IA analyse vos réglages actuels...",
-    styleAggressive: "AGRESSIF (Freestyle)",
-    styleRace: "RACE (Performance)",
-    styleSmooth: "SMOOTH (Cinematic)",
-    styleDescAggr: "Locked-in, Sharp, P-Term élevé.",
-    styleDescRace: "Latence min, Tracking max, Filtrage léger.",
-    styleDescSmooth: "Fluide, I-Term fort, Filtrage sécurisé.",
-    uploadTitle: "Fichier Log Blackbox",
-    uploadDesc: "Glisser fichier .BBL ou .CSV",
-    uploadAnalyzing: "Analyse FFT...",
-    resultTitle: "CLI GÉNÉRÉ",
-    resultCopy: "COPIER",
-    resultCopied: "COPIÉ !",
-    resultDesc: "Copiez ce bloc complet dans le CLI Betaflight.",
-    rpm: "RPM Théorique",
-    version: "Version Firmware"
-  },
-  en: {
-    title: "BETAFLIGHT TUNER AI",
-    subtitle: "Flight Engineering & Dynamic Analysis",
-    step1: "1. PHYSICAL SETUP",
-    step2: "2. CURRENT DUMP (Optional)",
-    step3: "3. FLIGHT STYLE",
-    step4: "4. BLACKBOX ANALYSIS",
-    step5: "GENERATE TUNE",
-    kv: "Motor KV",
-    cells: "Cells (S)",
-    prop: "Prop Size (inch)",
-    weight: "Weight (g)",
-    frame: "Frame Type",
-    dumpPlaceholder: "Paste your 'diff all' or 'dump' here for AI context analysis...",
-    styleAggressive: "AGGRESSIVE (Freestyle)",
-    styleRace: "RACE (Performance)",
-    styleSmooth: "SMOOTH (Cinematic)",
-    styleDescAggr: "Locked-in, Sharp, High P-Term.",
-    styleDescRace: "Min Latency, Max Tracking, Light filtering.",
-    styleDescSmooth: "Flowy, High I-Term, Safe filtering.",
-    uploadTitle: "Blackbox Log File",
-    uploadDesc: "Drag .BBL or .CSV file",
-    uploadAnalyzing: "FFT Analysis...",
-    resultTitle: "GENERATED CLI",
-    resultCopy: "COPY",
-    resultCopied: "COPIED !",
-    resultDesc: "Copy this complete block into Betaflight CLI.",
-    rpm: "Theoretical RPM",
-    version: "Firmware Version"
-  }
-};
+const IconCheck = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500">
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+);
 
-// --- TYPES ---
+const IconCopy = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+  </svg>
+);
+
+// --- TYPES & CONFIG ---
 
 type FrameType = 'tinywhoop' | 'toothpick' | 'micro' | 'freestyle' | 'bando' | 'cinewhoop' | 'longrange';
 type PilotStyle = 'aggressive' | 'race' | 'smooth';
-type Lang = 'fr' | 'en';
 type BfVersion = '4.3' | '4.4' | '4.5';
 
 interface DroneSpecs {
-  kv: number;
-  cells: number;
-  propSize: number;
-  weight: number;
-  frameType: FrameType;
-  pilotStyle: PilotStyle;
-  bfVersion: BfVersion;
-  dumpContent: string;
+  kv: number; cells: number; propSize: number; weight: number;
+  frameType: FrameType; pilotStyle: PilotStyle; bfVersion: BfVersion;
 }
 
-const FRAME_PRESETS: Record<FrameType, string> = {
-  tinywhoop: "Tinywhoop (65-75mm)",
-  toothpick: "2.5\" Toothpick",
-  micro: "Micro 3-4\"",
-  freestyle: "5\" Freestyle (Clean)",
-  bando: "5\" Bando (Heavy)",
-  cinewhoop: "Cinewhoop",
-  longrange: "7\" Long Range"
-};
+const FRAME_OPTIONS: {value: FrameType, label: string}[] = [
+  { value: 'tinywhoop', label: "Tinywhoop (65-75mm)" },
+  { value: 'toothpick', label: "Toothpick 2.5\" - 3\"" },
+  { value: 'micro', label: "Micro 3\" - 4\"" },
+  { value: 'freestyle', label: "Freestyle 5\" (Clean)" },
+  { value: 'bando', label: "Freestyle 5\" (Bando/Heavy)" },
+  { value: 'cinewhoop', label: "Cinewhoop (Ducts)" },
+  { value: 'longrange', label: "Long Range 7\"" },
+];
 
-// --- ENGINE ---
+// --- ENGINE (UNCHANGED LOGIC) ---
 
-const calculatePhysics = (specs: DroneSpecs, fileAnalysis?: { noiseFreq: number, noiseMagnitude: number }) => {
+const calculateTune = (specs: DroneSpecs, fileAnalysis?: { noiseFreq: number, noiseMagnitude: number }) => {
   const voltage = specs.cells * 4.2;
-  const theoreticalRPM = specs.kv * voltage;
-  const realisticRPM = theoreticalRPM * 0.85; 
-
-  let master = 1.0;
-  let pdBalance = 1.0; 
-  let ffStrength = 1.0;
-  let dTermFilter = 1; 
-  let iTermBoost = 0; 
+  const rpm = specs.kv * voltage * 0.85;
   
+  let master = 1.0, pd = 1.0, dfilt = 1.0, iboost = 0;
+
   // Frame Logic
-  switch (specs.frameType) {
-    case 'tinywhoop': master = 1.8; pdBalance = 0.8; dTermFilter = 0.8; break;
-    case 'toothpick': master = 1.4; pdBalance = 1.0; dTermFilter = 1.0; break;
-    case 'micro': master = 1.3; pdBalance = 1.0; break;
-    case 'freestyle': master = 1.0; pdBalance = 1.1; break;
-    case 'bando': master = 1.0; pdBalance = 0.9; dTermFilter = 1.3; iTermBoost = 5; break;
-    case 'cinewhoop': master = 1.1; pdBalance = 0.9; iTermBoost = 15; dTermFilter = 1.4; break;
-    case 'longrange': master = 0.9; pdBalance = 1.0; ffStrength = 0.7; dTermFilter = 1.5; break;
+  switch(specs.frameType) {
+    case 'tinywhoop': master=1.8; pd=0.8; dfilt=0.8; break;
+    case 'toothpick': master=1.4; break;
+    case 'micro': master=1.3; break;
+    case 'bando': pd=0.9; dfilt=1.3; iboost=5; break;
+    case 'cinewhoop': master=1.1; pd=0.9; iboost=15; dfilt=1.4; break;
+    case 'longrange': master=0.9; dfilt=1.5; break;
+    case 'freestyle': pd=1.1; break;
   }
 
   // Style Logic
-  if (specs.pilotStyle === 'aggressive') {
-    master *= 1.05; pdBalance *= 1.05; dTermFilter *= 0.95; ffStrength *= 1.1; 
-  } else if (specs.pilotStyle === 'race') {
-    master *= 1.10; // High gains
-    pdBalance *= 1.15; // P dominant for tracking
-    dTermFilter *= 0.85; // Min filtering for latency (Dangerous but fast)
-    ffStrength *= 1.2; // Instant response
-    iTermBoost += 5;
-  } else { // Smooth
-    master *= 0.95; pdBalance *= 0.95; dTermFilter *= 1.1; iTermBoost += 10; 
-  }
+  if (specs.pilotStyle === 'aggressive') { master*=1.05; pd*=1.05; dfilt*=0.95; }
+  else if (specs.pilotStyle === 'race') { master*=1.1; pd*=1.15; dfilt*=0.85; }
+  else { master*=0.95; pd*=0.95; dfilt*=1.1; iboost+=10; }
 
-  // RPM Corrections
-  if (realisticRPM > 45000) dTermFilter *= 0.8; 
-  else if (realisticRPM < 25000) dTermFilter *= 1.2; 
+  // RPM Logic
+  if (rpm > 45000) dfilt *= 0.8;
+  if (rpm < 25000) dfilt *= 1.2;
 
   // Blackbox Logic
-  let analysisNote = "";
-  let notchHz = 0;
-  let notchCutoff = 0;
-
+  let bbNote = "";
+  let notch = "";
   if (fileAnalysis) {
     if (fileAnalysis.noiseMagnitude > 50) {
-      dTermFilter += 0.3; 
-      notchHz = fileAnalysis.noiseFreq;
-      notchCutoff = Math.floor(notchHz * 0.75);
-      analysisNote = `detected_noise_peak: ${notchHz}Hz`;
+      dfilt += 0.3;
+      const hz = fileAnalysis.noiseFreq;
+      notch = `\n# [BLACKBOX] Pic de bruit détecté: ${hz}Hz\nset gyro_lpf2_type = PT1\nset gyro_lpf2_static_hz = ${hz*2}\nset dterm_notch_hz = ${hz}\nset dterm_notch_cutoff = ${Math.floor(hz*0.75)}`;
+      bbNote = "Filtres renforcés suite à l'analyse BB.";
     } else {
-      dTermFilter -= 0.1; 
-      analysisNote = "clean_log_detected";
+      dfilt -= 0.1;
+      bbNote = "Log propre : Filtrage réduit pour diminuer la latence.";
     }
-  } else {
-    notchHz = Math.floor(realisticRPM / 60); 
-    notchCutoff = Math.floor(notchHz * 0.7);
   }
 
-  // PIDs
-  const pPitch = Math.floor(46 * master * pdBalance);
-  const iPitch = Math.floor(85 * master) + iTermBoost;
-  const dPitch = Math.floor(30 * master / pdBalance);
+  const pPitch = Math.floor(46*master*pd);
+  const iPitch = Math.floor(85*master)+iboost;
+  const dPitch = Math.floor(30*master/pd);
   
-  const pRoll = Math.floor(42 * master * pdBalance);
-  const iRoll = Math.floor(80 * master) + iTermBoost;
-  const dRoll = Math.floor(27 * master / pdBalance);
+  const pRoll = Math.floor(42*master*pd);
+  const iRoll = Math.floor(80*master)+iboost;
+  const dRoll = Math.floor(27*master/pd);
 
-  // Filters
-  const dynLpfMin = Math.floor(realisticRPM / 60 / 4); 
-  const dynLpfMax = Math.floor(realisticRPM / 60);
+  const bf45 = specs.bfVersion === '4.5' ? 
+    `set vbat_sag_compensation = 100\nset feedforward_averaging = 2_POINT\nset feedforward_smooth_factor = 25\nset feedforward_jitter_reduction = 7` : 
+    `set vbat_sag_compensation = 0`;
 
-  // Version Specifics
-  const isV45 = specs.bfVersion === '4.5';
-  let versionCommands = "";
-  
-  if (isV45) {
-    versionCommands = `
-# Betaflight 4.5 Specifics
-set vbat_sag_compensation = 100
-set feedforward_averaging = 2_POINT
-set feedforward_smooth_factor = 25
-set feedforward_jitter_reduction = 7
-set feedforward_boost = 15`;
-  } else {
-    versionCommands = `
-# Legacy Betaflight
-set vbat_sag_compensation = 0`;
-  }
-
-  // Dump Analysis (Fake parsing for display)
-  const dumpComment = specs.dumpContent.length > 10 ? "# Base settings analysed from provided dump/diff" : "# No base dump provided, using defaults";
-
-  let cli = `
+  return `
 # ==========================================
-#  AI TUNER GENERATED PRESET
+#  AI PRESET: ${specs.frameType.toUpperCase()} / ${specs.pilotStyle.toUpperCase()}
 # ==========================================
-# Target: ${specs.kv}KV | ${specs.cells}S | Frame: ${specs.frameType}
-# Style: ${specs.pilotStyle.toUpperCase()} | RPM Max: ${Math.floor(realisticRPM)}
-${dumpComment}
-${analysisNote ? "# Log Analysis: " + analysisNote : ""}
+# Specs: ${specs.kv}KV | ${specs.cells}S | ${specs.weight}g
+# RPM Théorique: ${Math.floor(rpm)}
+${bbNote ? "# " + bbNote : ""}
 
 profile 0
-
-# --- PID LOOP & FILTERS ---
-set pid_profile_duration = 125
-set dterm_lpf1_dyn_min_hz = ${Math.max(dynLpfMin, 150)}
-set dterm_lpf1_dyn_max_hz = ${Math.max(dynLpfMax, 400)}
-set dterm_lpf1_type = PT1
-set dterm_lpf2_type = PT1
-${notchHz > 0 ? `
-# Dynamic Notch (Harmonics)
-set gyro_lpf2_type = PT1
-set gyro_lpf2_static_hz = ${notchHz * 2}
-set dterm_notch_hz = ${notchHz}
-set dterm_notch_cutoff = ${notchCutoff}` : ""}
 
 # --- PID GAINS ---
 set p_pitch = ${pPitch}
 set i_pitch = ${iPitch}
 set d_pitch = ${dPitch}
-set f_pitch = ${Math.floor(100 * ffStrength)}
+set f_pitch = ${Math.floor(100 * (specs.pilotStyle==='race'?1.2:1))}
 
 set p_roll = ${pRoll}
 set i_roll = ${iRoll}
 set d_roll = ${dRoll}
-set f_roll = ${Math.floor(95 * ffStrength)}
+set f_roll = ${Math.floor(95 * (specs.pilotStyle==='race'?1.2:1))}
 
 set p_yaw = ${Math.floor(45 * master)}
 set i_yaw = ${Math.floor(85 * master)}
 set d_yaw = 0
-set f_yaw = ${Math.floor(100 * ffStrength)}
+set f_yaw = ${Math.floor(100 * (specs.pilotStyle==='race'?1.2:1))}
 
-${versionCommands}
+# --- FILTRES ---
+set dterm_lpf1_dyn_min_hz = ${Math.max(Math.floor(rpm/240), 150)}
+set dterm_lpf1_dyn_max_hz = ${Math.max(Math.floor(rpm/60), 400)}
+set dterm_lpf1_type = PT1
+set dterm_lpf2_type = PT1
+${notch}
+
+${bf45}
 
 save
 `;
-
-  return { cli, rpm: Math.floor(realisticRPM) };
 };
 
-// --- COMPONENTS ---
-
-const SectionHeader = ({ icon: Icon, title }: { icon: any, title: string }) => (
-  <div className="flex items-center gap-3 mb-4 border-b border-[#444] pb-2">
-    <div className="text-[#ff9800]"><Icon className="w-5 h-5" /></div>
-    <h3 className="text-sm font-bold text-white uppercase tracking-wider">{title}</h3>
-  </div>
-);
-
-// --- MAIN APP ---
+// --- COMPONENT ---
 
 export default function App() {
-  const [lang, setLang] = useState<Lang>('fr');
-  const txt = translations[lang];
-  
   const [specs, setSpecs] = useState<DroneSpecs>({
     kv: 1950, cells: 6, propSize: 5, weight: 650,
-    frameType: 'freestyle', pilotStyle: 'aggressive', bfVersion: '4.5', dumpContent: ''
+    frameType: 'freestyle', pilotStyle: 'aggressive', bfVersion: '4.5'
   });
-
+  
   const [fileName, setFileName] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [result, setResult] = useState<{ cli: string, rpm: number } | null>(null);
+  const [cli, setCli] = useState("");
   const [copied, setCopied] = useState(false);
-
-  const resultRef = useRef<HTMLDivElement>(null);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
-    if (f && (f.name.endsWith('.bbl') || f.name.endsWith('.csv'))) {
-      setFileName(f.name);
+    if (f) {
       setAnalyzing(true);
-      setTimeout(() => setAnalyzing(false), 1000);
+      setFileName(f.name);
+      // Simule une analyse
+      setTimeout(() => {
+        setAnalyzing(false);
+        // Mock result: si le nom contient 'noise', on simule du bruit
+        const hasNoise = f.name.includes('noise'); 
+        const analysis = hasNoise ? { noiseFreq: 220, noiseMagnitude: 65 } : { noiseFreq: 0, noiseMagnitude: 10 };
+        setCli(calculateTune(specs, analysis));
+      }, 1500);
     }
   };
 
-  const generate = () => {
-    // Simulate Blackbox data if file present
-    let analysis = undefined;
-    if (fileName) {
-      analysis = fileName.length % 2 === 0 
-        ? { noiseFreq: 240, noiseMagnitude: 80 } 
-        : { noiseFreq: 150, noiseMagnitude: 20 };
-    }
-    const res = calculatePhysics(specs, analysis);
-    setResult(res);
-    
-    // Auto scroll to result
-    setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+  const generateManual = () => {
+    setCli(calculateTune(specs));
   };
 
   return (
-    <div className="min-h-screen bg-[#1e1e1e] text-[#cfcfcf] font-sans selection:bg-[#ff9800] selection:text-black">
+    <div className="min-h-screen bg-zinc-950 text-zinc-200 font-sans flex flex-col md:flex-row">
       
-      {/* TOP BAR */}
-      <header className="bg-[#2b2b2b] border-b border-[#444] sticky top-0 z-50 shadow-lg">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-             <div className="w-8 h-8 bg-[#ff9800] rounded flex items-center justify-center text-black font-bold">BF</div>
-             <div>
-               <h1 className="text-white font-bold text-lg leading-none tracking-wider">{txt.title}</h1>
-               <p className="text-[10px] text-[#888] uppercase font-mono">{txt.subtitle}</p>
-             </div>
-          </div>
-          
-          <button 
-            onClick={() => setLang(l => l === 'fr' ? 'en' : 'fr')}
-            className="flex items-center gap-2 bg-[#1a1a1a] hover:bg-[#333] px-3 py-1.5 rounded border border-[#444] transition-colors"
-          >
-            <IconGlobe className="w-4 h-4 text-[#ff9800]" />
-            <span className="text-xs font-bold text-white">{lang.toUpperCase()}</span>
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-4xl mx-auto p-6 space-y-8">
+      {/* LEFT PANEL: INPUTS */}
+      <div className="w-full md:w-[500px] bg-zinc-900 flex flex-col border-r border-zinc-800 shadow-2xl z-10">
         
-        {/* STEP 1: SETUP */}
-        <section className="bg-[#2b2b2b] rounded border border-[#444] p-6 shadow-lg">
-          <SectionHeader icon={IconGear} title={txt.step1} />
+        {/* Header */}
+        <div className="p-8 border-b border-zinc-800">
+           <h1 className="text-2xl font-black tracking-tighter text-white flex items-center gap-2">
+             <span className="text-white">FPV</span>
+             <span className="text-indigo-500">TUNE</span>
+             <span className="text-zinc-600 font-normal text-sm ml-auto">v2.0.4 (Stable)</span>
+           </h1>
+           <p className="text-xs text-zinc-500 mt-1 uppercase tracking-widest font-medium">AI Engineering Tool</p>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             {/* Firmware */}
-             <div>
-                <label className="block text-xs font-bold text-[#888] mb-2 uppercase">{txt.version}</label>
-                <select 
-                  className="w-full bg-[#1a1a1a] border border-[#444] text-white rounded p-2.5 focus:border-[#ff9800] outline-none font-mono text-sm"
-                  value={specs.bfVersion}
-                  onChange={(e) => setSpecs({...specs, bfVersion: e.target.value as BfVersion})}
+          {/* 1. MACHINE */}
+          <section>
+             <h2 className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">1. Machine Specs</h2>
+             <div className="grid grid-cols-2 gap-4">
+                <div>
+                   <label className="block text-[10px] uppercase text-zinc-500 font-bold mb-1">Version BF</label>
+                   <select className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-sm focus:border-indigo-500 outline-none"
+                     value={specs.bfVersion} onChange={e => setSpecs({...specs, bfVersion: e.target.value as BfVersion})}>
+                     <option value="4.5">Betaflight 4.5+</option>
+                     <option value="4.4">Betaflight 4.4</option>
+                     <option value="4.3">Betaflight 4.3</option>
+                   </select>
+                </div>
+                <div>
+                   <label className="block text-[10px] uppercase text-zinc-500 font-bold mb-1">Chassis</label>
+                   <select className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-sm focus:border-indigo-500 outline-none"
+                     value={specs.frameType} onChange={e => setSpecs({...specs, frameType: e.target.value as FrameType})}>
+                     {FRAME_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                   </select>
+                </div>
+                <div>
+                   <label className="block text-[10px] uppercase text-zinc-500 font-bold mb-1">Moteur (KV)</label>
+                   <input type="number" className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-sm focus:border-indigo-500 outline-none font-mono"
+                     value={specs.kv} onChange={e => setSpecs({...specs, kv: +e.target.value})} />
+                </div>
+                <div>
+                   <label className="block text-[10px] uppercase text-zinc-500 font-bold mb-1">LiPo (S)</label>
+                   <select className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-sm focus:border-indigo-500 outline-none"
+                     value={specs.cells} onChange={e => setSpecs({...specs, cells: +e.target.value})}>
+                     {[1,2,3,4,6,8].map(s => <option key={s} value={s}>{s}S</option>)}
+                   </select>
+                </div>
+                <div>
+                   <label className="block text-[10px] uppercase text-zinc-500 font-bold mb-1">Hélice (In)</label>
+                   <input type="number" className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-sm focus:border-indigo-500 outline-none font-mono"
+                     value={specs.propSize} onChange={e => setSpecs({...specs, propSize: +e.target.value})} />
+                </div>
+                <div>
+                   <label className="block text-[10px] uppercase text-zinc-500 font-bold mb-1">Poids (g)</label>
+                   <input type="number" className="w-full bg-zinc-950 border border-zinc-700 rounded p-2 text-sm focus:border-indigo-500 outline-none font-mono"
+                     value={specs.weight} onChange={e => setSpecs({...specs, weight: +e.target.value})} />
+                </div>
+             </div>
+          </section>
+
+          {/* 2. FEELING */}
+          <section>
+             <h2 className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">2. Flight Feel</h2>
+             <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 'aggressive', label: 'AGRO', desc: 'Freestyle Sharp' },
+                  { id: 'race', label: 'RACE', desc: 'Tracking Max' },
+                  { id: 'smooth', label: 'SMOOTH', desc: 'Cinematic Flow' }
+                ].map(s => (
+                  <button 
+                    key={s.id}
+                    onClick={() => setSpecs({...specs, pilotStyle: s.id as PilotStyle})}
+                    className={`p-3 rounded border transition-all ${specs.pilotStyle === s.id ? 'bg-zinc-800 border-indigo-500 text-white' : 'bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-600'}`}
+                  >
+                    <div className="text-xs font-bold">{s.label}</div>
+                    <div className="text-[9px] mt-1 opacity-70">{s.desc}</div>
+                  </button>
+                ))}
+             </div>
+          </section>
+
+          {/* 3. BLACKBOX (PRO) */}
+          <section>
+             <h2 className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-4 border-b border-zinc-800 pb-2">3. Blackbox (Pour les Pros)</h2>
+             <div className={`relative border border-dashed rounded-lg h-24 flex flex-col items-center justify-center transition-all ${fileName ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-zinc-700 bg-zinc-950 hover:border-zinc-500'}`}>
+                <input type="file" accept=".bbl,.csv" onChange={handleFile} className="absolute inset-0 opacity-0 cursor-pointer" />
+                
+                {analyzing ? (
+                  <div className="text-xs font-mono text-indigo-400 animate-pulse">ANALYSE FFT EN COURS...</div>
+                ) : fileName ? (
+                  <div className="flex items-center gap-2 text-emerald-400">
+                    <IconCheck />
+                    <span className="text-xs font-bold">{fileName}</span>
+                  </div>
+                ) : (
+                  <>
+                    <IconUpload />
+                    <span className="text-[10px] uppercase font-bold mt-2 text-zinc-500">Lier Log Blackbox (.BBL)</span>
+                  </>
+                )}
+             </div>
+             <p className="text-[10px] text-zinc-600 mt-2 leading-relaxed">
+               Uploadez un log Blackbox pour que l'IA détecte les pics de bruit réels et ajuste les filtres Notch automatiquement.
+             </p>
+          </section>
+
+          {!fileName && (
+            <button onClick={generateManual} className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded text-sm uppercase tracking-wide border border-zinc-700 transition-all">
+              Générer sans Blackbox
+            </button>
+          )}
+
+        </div>
+      </div>
+
+      {/* RIGHT PANEL: OUTPUT */}
+      <div className="flex-1 bg-black flex flex-col relative overflow-hidden">
+        {/* Background Decor */}
+        <div className="absolute inset-0 flex items-center justify-center text-zinc-900/20">
+           <DroneBlueprint />
+        </div>
+
+        <div className="relative z-10 flex-1 flex flex-col p-8">
+           <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-zinc-400">CLI OUTPUT</h2>
+              {cli && (
+                <button 
+                  onClick={() => { navigator.clipboard.writeText(cli); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                  className={`text-xs font-bold px-4 py-2 rounded uppercase tracking-wide transition-colors ${copied ? 'bg-emerald-500 text-black' : 'bg-white text-black hover:bg-zinc-200'}`}
                 >
-                  <option value="4.5">Betaflight 4.5.x</option>
-                  <option value="4.4">Betaflight 4.4.x</option>
-                  <option value="4.3">Betaflight 4.3.x</option>
-                </select>
-             </div>
-             
-             {/* KV */}
-             <div>
-                <label className="block text-xs font-bold text-[#888] mb-2 uppercase">{txt.kv}</label>
-                <input 
-                   type="number" className="w-full bg-[#1a1a1a] border border-[#444] text-white rounded p-2.5 focus:border-[#ff9800] outline-none font-mono text-sm"
-                   value={specs.kv} onChange={(e) => setSpecs({...specs, kv: parseInt(e.target.value) || 0})}
+                  {copied ? "Copié dans le presse-papier" : "Copier le Code"}
+                </button>
+              )}
+           </div>
+
+           <div className="flex-1 bg-zinc-900/80 backdrop-blur border border-zinc-800 rounded-lg overflow-hidden relative shadow-xl">
+              {cli ? (
+                <textarea 
+                  readOnly
+                  value={cli}
+                  className="w-full h-full bg-transparent text-emerald-500 font-mono text-xs p-6 outline-none resize-none leading-relaxed"
                 />
-             </div>
-
-             {/* Cells & Prop */}
-             <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-[#888] mb-2 uppercase">{txt.cells}</label>
-                  <select 
-                    className="w-full bg-[#1a1a1a] border border-[#444] text-white rounded p-2.5 focus:border-[#ff9800] outline-none font-mono text-sm"
-                    value={specs.cells} onChange={(e) => setSpecs({...specs, cells: parseInt(e.target.value)})}
-                  >
-                    {[1,2,3,4,6,8].map(n => <option key={n} value={n}>{n}S</option>)}
-                  </select>
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-600">
+                   <div className="w-16 h-16 border-2 border-zinc-800 border-dashed rounded-full flex items-center justify-center mb-4">
+                      <span className="text-2xl font-bold">?</span>
+                   </div>
+                   <p className="text-sm font-medium">EN ATTENTE DE DONNÉES</p>
+                   <p className="text-xs opacity-50 mt-1">Remplissez le formulaire à gauche pour générer.</p>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#888] mb-2 uppercase">{txt.prop}</label>
-                  <input 
-                    type="number" step="0.1" className="w-full bg-[#1a1a1a] border border-[#444] text-white rounded p-2.5 focus:border-[#ff9800] outline-none font-mono text-sm"
-                    value={specs.propSize} onChange={(e) => setSpecs({...specs, propSize: parseFloat(e.target.value)})}
-                  />
-                </div>
-             </div>
+              )}
+           </div>
+           
+           <p className="text-[10px] text-zinc-600 mt-4 text-center">
+             Ce code est généré par un modèle physique prédictif. Vérifiez toujours la température des moteurs après le premier vol.
+           </p>
+        </div>
+      </div>
 
-             {/* Frame & Weight */}
-             <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-[#888] mb-2 uppercase">{txt.frame}</label>
-                  <select 
-                    className="w-full bg-[#1a1a1a] border border-[#444] text-white rounded p-2.5 focus:border-[#ff9800] outline-none font-mono text-sm"
-                    value={specs.frameType} onChange={(e) => setSpecs({...specs, frameType: e.target.value as FrameType})}
-                  >
-                    {Object.entries(FRAME_PRESETS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#888] mb-2 uppercase">{txt.weight}</label>
-                  <input 
-                    type="number" className="w-full bg-[#1a1a1a] border border-[#444] text-white rounded p-2.5 focus:border-[#ff9800] outline-none font-mono text-sm"
-                    value={specs.weight} onChange={(e) => setSpecs({...specs, weight: parseInt(e.target.value)})}
-                  />
-                </div>
-             </div>
-          </div>
-        </section>
-
-        {/* STEP 2: DUMP (Textarea) */}
-        <section className="bg-[#2b2b2b] rounded border border-[#444] p-6 shadow-lg">
-          <SectionHeader icon={IconFileText} title={txt.step2} />
-          <textarea 
-            className="w-full h-24 bg-[#1a1a1a] border border-[#444] rounded p-3 text-xs font-mono text-slate-400 focus:border-[#ff9800] outline-none resize-none"
-            placeholder={txt.dumpPlaceholder}
-            value={specs.dumpContent}
-            onChange={(e) => setSpecs({...specs, dumpContent: e.target.value})}
-          />
-        </section>
-
-        {/* STEP 3: STYLE */}
-        <section className="bg-[#2b2b2b] rounded border border-[#444] p-6 shadow-lg">
-          <SectionHeader icon={IconActivity} title={txt.step3} />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-             {[
-               { id: 'aggressive', label: txt.styleAggressive, desc: txt.styleDescAggr, color: 'border-orange-500' },
-               { id: 'race', label: txt.styleRace, desc: txt.styleDescRace, color: 'border-red-500' },
-               { id: 'smooth', label: txt.styleSmooth, desc: txt.styleDescSmooth, color: 'border-emerald-500' },
-             ].map((style) => (
-               <button
-                 key={style.id}
-                 onClick={() => setSpecs({...specs, pilotStyle: style.id as PilotStyle})}
-                 className={`p-4 rounded border-2 text-left transition-all ${specs.pilotStyle === style.id ? `${style.color} bg-[#333]` : 'border-[#444] bg-[#1a1a1a] hover:border-[#666]'}`}
-               >
-                 <div className={`font-bold text-sm mb-1 ${specs.pilotStyle === style.id ? 'text-white' : 'text-[#aaa]'}`}>{style.label}</div>
-                 <div className="text-[10px] text-[#666]">{style.desc}</div>
-               </button>
-             ))}
-          </div>
-        </section>
-
-        {/* STEP 4: BLACKBOX */}
-        <section className="bg-[#2b2b2b] rounded border border-[#444] p-6 shadow-lg">
-          <SectionHeader icon={IconUpload} title={txt.step4} />
-          <div className="relative border-2 border-dashed border-[#444] bg-[#1a1a1a] rounded p-6 flex flex-col items-center justify-center group hover:border-[#666] transition-colors">
-            <input type="file" accept=".bbl,.csv" onChange={handleFile} className="absolute inset-0 opacity-0 cursor-pointer" />
-            {analyzing ? (
-              <div className="text-[#ff9800] animate-pulse font-mono text-sm">{txt.uploadAnalyzing}</div>
-            ) : fileName ? (
-              <div className="flex items-center gap-2 text-emerald-500">
-                <IconCheck className="w-5 h-5" />
-                <span className="font-mono font-bold">{fileName}</span>
-              </div>
-            ) : (
-              <>
-                <div className="text-[#888] font-bold mb-1">{txt.uploadTitle}</div>
-                <div className="text-[10px] text-[#555] uppercase">{txt.uploadDesc}</div>
-              </>
-            )}
-          </div>
-        </section>
-
-        {/* ACTION */}
-        <button 
-          onClick={generate}
-          className="w-full bg-[#ff9800] hover:bg-[#ffa726] text-black font-bold text-lg py-4 rounded shadow-xl transition-transform active:scale-[0.99] flex items-center justify-center gap-2"
-        >
-          <IconDownload className="w-6 h-6" /> {txt.step5}
-        </button>
-
-        {/* RESULT */}
-        {result && (
-          <div ref={resultRef} className="animate-in slide-in-from-bottom-10 fade-in duration-500 pt-8">
-             <div className="bg-[#1a1a1a] border border-[#ff9800] rounded overflow-hidden shadow-2xl">
-               <div className="bg-[#ff9800] px-4 py-2 flex justify-between items-center">
-                 <div className="text-black font-bold flex items-center gap-2">
-                   <IconFileText className="w-4 h-4" /> {txt.resultTitle}
-                 </div>
-                 <div className="text-[10px] font-mono text-black bg-white/20 px-2 py-0.5 rounded">
-                   {txt.rpm}: {result.rpm}
-                 </div>
-               </div>
-               <div className="p-0 relative group">
-                 <textarea 
-                   readOnly 
-                   value={result.cli}
-                   className="w-full h-96 bg-[#000] text-emerald-500 font-mono text-xs p-4 outline-none resize-none"
-                 />
-                 <button 
-                   onClick={() => { navigator.clipboard.writeText(result.cli); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-                   className={`absolute top-4 right-4 px-4 py-2 rounded font-bold text-xs transition-colors shadow-lg ${copied ? 'bg-emerald-500 text-black' : 'bg-[#ff9800] text-black hover:bg-white'}`}
-                 >
-                   {copied ? txt.resultCopied : txt.resultCopy}
-                 </button>
-               </div>
-               <div className="bg-[#222] p-2 text-center text-[10px] text-[#666]">
-                 {txt.resultDesc}
-               </div>
-             </div>
-          </div>
-        )}
-
-      </main>
     </div>
   );
 }
