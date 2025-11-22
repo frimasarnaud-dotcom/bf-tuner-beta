@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
-// --- ICONS ---
+// --- ICONS (Styled) ---
 
-const IconMotor = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconMotor = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <circle cx="12" cy="12" r="10"></circle>
     <circle cx="12" cy="12" r="3"></circle>
     <line x1="12" y1="2" x2="12" y2="22"></line>
@@ -12,8 +12,8 @@ const IconMotor = () => (
   </svg>
 );
 
-const IconChip = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconChip = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
     <rect x="9" y="9" width="6" height="6"></rect>
     <line x1="9" y1="1" x2="9" y2="4"></line>
@@ -27,8 +27,8 @@ const IconChip = () => (
   </svg>
 );
 
-const IconFile = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconFile = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
     <polyline points="14 2 14 8 20 8"></polyline>
     <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -37,51 +37,51 @@ const IconFile = () => (
   </svg>
 );
 
-const IconCopy = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconCopy = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
   </svg>
 );
 
-const IconCheck = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+const IconCheck = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <polyline points="20 6 9 17 4 12"></polyline>
   </svg>
 );
 
-const IconAlert = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconAlert = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
     <line x1="12" y1="9" x2="12" y2="13"></line>
     <line x1="12" y1="17" x2="12.01" y2="17"></line>
   </svg>
 );
 
-const IconZap = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconZap = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
   </svg>
 );
 
-const IconExternalLink = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconExternalLink = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
     <polyline points="15 3 21 3 21 9"></polyline>
     <line x1="10" y1="14" x2="21" y2="3"></line>
   </svg>
 );
 
-const IconInfo = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconInfo = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <circle cx="12" cy="12" r="10"></circle>
     <line x1="12" y1="16" x2="12" y2="12"></line>
     <line x1="12" y1="8" x2="12.01" y2="8"></line>
   </svg>
 );
 
-const IconCpu = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconCpu = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
     <rect x="9" y="9" width="6" height="6"></rect>
     <line x1="9" y1="1" x2="9" y2="4"></line>
@@ -92,6 +92,13 @@ const IconCpu = () => (
     <line x1="20" y1="14" x2="23" y2="14"></line>
     <line x1="1" y1="9" x2="4" y2="9"></line>
     <line x1="1" y1="14" x2="4" y2="14"></line>
+  </svg>
+);
+
+const IconTerminal = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="4 17 10 11 4 5"></polyline>
+    <line x1="12" y1="19" x2="20" y2="19"></line>
   </svg>
 );
 
@@ -124,12 +131,12 @@ interface TuneResult {
 
 const FRAME_PRESETS: Record<FrameType, string> = {
   tinywhoop: "Tinywhoop (65-75mm)",
-  toothpick: "2.5\" Toothpick (Open Prop)",
-  micro: "Micro 3-4 inch (Standard)",
-  freestyle: "5 inch Freestyle (Clean)",
-  bando: "5 inch Bando (Heavy/Armored)",
-  cinewhoop: "Cinewhoop (Ducted)",
-  longrange: "7 inch Long Range"
+  toothpick: "2.5\" Toothpick",
+  micro: "Micro 3-4\"",
+  freestyle: "5\" Freestyle (Clean)",
+  bando: "5\" Bando (Heavy)",
+  cinewhoop: "Cinewhoop",
+  longrange: "7\" Long Range"
 };
 
 // --- LOGIC ENGINE ---
@@ -155,9 +162,9 @@ const calculatePhysics = (specs: DroneSpecs, fileAnalysis?: { noiseFreq: number,
       dTermFilter = 0.8; 
       break;
     case 'toothpick': // 2.5" Open Prop
-      master = 1.4; // High power/weight ratio needs high PIDs to lock in
-      pdBalance = 1.0; // Balanced feel
-      dTermFilter = 1.0; // Generally clean but light frames resonate
+      master = 1.4; 
+      pdBalance = 1.0; 
+      dTermFilter = 1.0; 
       break;
     case 'micro':
       master = 1.3;
@@ -168,10 +175,10 @@ const calculatePhysics = (specs: DroneSpecs, fileAnalysis?: { noiseFreq: number,
       pdBalance = 1.1; 
       break;
     case 'bando': // 5" Bando Basher
-      master = 1.0; // Base reference
-      pdBalance = 0.9; // More D-term bias for propwash/abuse handling
-      dTermFilter = 1.3; // Heavier filtering for bent props/motor bearings
-      iTermBoost = 5; // Slight boost for throw weight
+      master = 1.0; 
+      pdBalance = 0.9; 
+      dTermFilter = 1.3; 
+      iTermBoost = 5; 
       break;
     case 'cinewhoop':
       master = 1.1; 
@@ -190,16 +197,16 @@ const calculatePhysics = (specs: DroneSpecs, fileAnalysis?: { noiseFreq: number,
   // 3. Pilot Style Adjustment
   let styleNote = "";
   if (specs.pilotStyle === 'aggressive') {
-    master *= 1.05; // More overall gain
-    pdBalance *= 1.05; // Bias towards P for sharpness
-    dTermFilter *= 0.95; // Less filtering for less latency (higher risk)
-    ffStrength *= 1.1; // Faster stick response
+    master *= 1.05; 
+    pdBalance *= 1.05; 
+    dTermFilter *= 0.95; 
+    ffStrength *= 1.1; 
     styleNote = "AGGRESSIVE";
   } else {
-    master *= 0.95; // Safer gains
-    pdBalance *= 0.95; // Bias towards D for damping
-    dTermFilter *= 1.1; // More filtering for smooth video
-    iTermBoost += 10; // Better attitude holding
+    master *= 0.95; 
+    pdBalance *= 0.95; 
+    dTermFilter *= 1.1; 
+    iTermBoost += 10; 
     styleNote = "SMOOTH/SECURE";
   }
 
@@ -325,6 +332,44 @@ set dterm_notch_cutoff = ${notchCutoff}
 };
 
 
+// --- UI COMPONENTS (Internal) ---
+
+const InputGroup = ({ label, icon: Icon, children }: { label: string, icon: any, children: React.ReactNode }) => (
+  <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-5 backdrop-blur-sm hover:border-slate-700 transition-colors duration-300">
+    <h2 className="text-orange-500 text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+      <Icon className="w-4 h-4" /> {label}
+    </h2>
+    <div className="space-y-4">
+      {children}
+    </div>
+  </div>
+);
+
+const StyledInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
+  <input 
+    {...props}
+    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 focus:outline-none transition-all font-mono"
+  />
+);
+
+const StyledSelect = (props: React.SelectHTMLAttributes<HTMLSelectElement>) => (
+  <div className="relative">
+    <select 
+      {...props}
+      className="w-full appearance-none bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 focus:outline-none transition-all font-mono cursor-pointer"
+    />
+    <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+    </div>
+  </div>
+);
+
+const Label = ({ children }: { children: React.ReactNode }) => (
+  <label className="block text-[10px] uppercase font-bold text-slate-500 mb-1 tracking-wider ml-1">
+    {children}
+  </label>
+);
+
 // --- MAIN APP COMPONENT ---
 
 export default function App() {
@@ -371,19 +416,14 @@ export default function App() {
   const generateResult = (withFile: boolean = false, name: string = "") => {
     try {
       let fileAnalysis = undefined;
-      
       const targetName = withFile ? name : (fileName || "");
       const hasFile = targetName.length > 0;
 
       if (hasFile) {
         const hash = targetName.length % 3; 
-        if (hash === 0) {
-          fileAnalysis = { noiseFreq: 240, noiseMagnitude: 85 }; 
-        } else if (hash === 1) {
-          fileAnalysis = { noiseFreq: 150, noiseMagnitude: 30 }; 
-        } else {
-          fileAnalysis = { noiseFreq: 350, noiseMagnitude: 60 }; 
-        }
+        if (hash === 0) { fileAnalysis = { noiseFreq: 240, noiseMagnitude: 85 }; } 
+        else if (hash === 1) { fileAnalysis = { noiseFreq: 150, noiseMagnitude: 30 }; } 
+        else { fileAnalysis = { noiseFreq: 350, noiseMagnitude: 60 }; }
       }
 
       const result = calculatePhysics(specs, fileAnalysis);
@@ -401,301 +441,274 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1e1e1e] text-gray-200 font-sans selection:bg-[#ff9800] selection:text-white flex flex-col md:flex-row">
+    <div className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-orange-500/30 selection:text-orange-200 flex flex-col md:flex-row">
       
-      {/* SIDEBAR */}
-      <div className="w-full md:w-96 bg-[#2d2d2d] border-r border-[#444] flex flex-col h-screen max-h-screen">
-        <div className="p-6 border-b border-[#444] bg-[#252525] shrink-0">
-          <div className="flex items-center space-x-3 mb-1">
-            <div className="bg-[#ff9800] p-2 rounded-full text-black">
-              <IconChip />
+      {/* SIDEBAR CONTROL PANEL */}
+      <div className="w-full md:w-[400px] bg-slate-950 border-r border-slate-900 flex flex-col h-auto md:h-screen z-10 shadow-2xl shadow-black">
+        {/* Header */}
+        <div className="p-6 border-b border-slate-900 bg-slate-950 sticky top-0 z-20">
+          <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-br from-orange-500 to-amber-600 p-2.5 rounded-lg text-white shadow-lg shadow-orange-900/20">
+              <IconChip className="w-6 h-6" />
             </div>
-            <h1 className="text-xl font-bold text-white tracking-wider">BF TUNER <span className="text-[#ff9800] text-xs align-top">AI</span></h1>
+            <div>
+              <h1 className="text-xl font-bold text-white tracking-wider leading-none">BF TUNER <span className="text-orange-500 text-xs align-top">AI</span></h1>
+              <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-semibold mt-1">Engineering Tool v1.0</p>
+            </div>
           </div>
-          <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest font-semibold pl-12">Dynamic Analyzer</p>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+        {/* Scrollable Inputs */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
           
-          {/* Electronic Specs (NEW) */}
-          <section>
-            <h2 className="text-[#ff9800] text-sm font-bold uppercase tracking-wider mb-4 flex items-center">
-              <span className="mr-2"><IconCpu /></span> Électronique
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Version Betaflight</label>
-                <select 
-                  value={specs.bfVersion}
-                  onChange={(e) => handleInputChange('bfVersion', e.target.value as BfVersion)}
-                  className="w-full bg-[#1a1a1a] border border-[#444] rounded p-2 text-white focus:border-[#ff9800] focus:outline-none font-mono"
-                >
-                  <option value="4.5">Betaflight 4.5.x (Stable)</option>
-                  <option value="4.4">Betaflight 4.4.x (Cloud)</option>
-                  <option value="4.3">Betaflight 4.3.x (Legacy)</option>
-                </select>
-                <p className="text-[10px] text-gray-500 mt-1 italic">
-                  {specs.bfVersion === '4.5' ? "Active Vbat Sag Comp & FF Jitter Reduction." : "Mode compatibilité standard."}
-                </p>
-              </div>
+          <InputGroup label="Firmware" icon={IconCpu}>
+            <div>
+              <Label>Version Betaflight</Label>
+              <StyledSelect 
+                value={specs.bfVersion}
+                onChange={(e) => handleInputChange('bfVersion', e.target.value as BfVersion)}
+              >
+                <option value="4.5">Betaflight 4.5.x (Stable)</option>
+                <option value="4.4">Betaflight 4.4.x (Cloud)</option>
+                <option value="4.3">Betaflight 4.3.x (Legacy)</option>
+              </StyledSelect>
             </div>
-          </section>
+          </InputGroup>
 
-          {/* Motor Specs */}
-          <section>
-            <h2 className="text-[#ff9800] text-sm font-bold uppercase tracking-wider mb-4 flex items-center">
-              <span className="mr-2"><IconMotor /></span> Motorisation
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Moteur KV</label>
-                <input 
-                  type="number" 
-                  value={specs.kv}
-                  onChange={(e) => handleInputChange('kv', parseInt(e.target.value) || 0)}
-                  className="w-full bg-[#1a1a1a] border border-[#444] rounded p-2 text-white focus:border-[#ff9800] focus:outline-none transition-colors"
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">LiPo (S)</label>
-                  <select 
-                    value={specs.cells}
-                    onChange={(e) => handleInputChange('cells', parseInt(e.target.value))}
-                    className="w-full bg-[#1a1a1a] border border-[#444] rounded p-2 text-white focus:border-[#ff9800] focus:outline-none"
-                  >
-                    {[1,2,3,4,6,8].map(s => <option key={s} value={s}>{s}S</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">Hélice (In)</label>
-                  <input 
-                    type="number" 
-                    step="0.1"
-                    value={specs.propSize}
-                    onChange={(e) => handleInputChange('propSize', parseFloat(e.target.value))}
-                    className="w-full bg-[#1a1a1a] border border-[#444] rounded p-2 text-white focus:border-[#ff9800] focus:outline-none"
-                  />
-                </div>
-              </div>
+          <InputGroup label="Propulsion" icon={IconMotor}>
+            <div>
+              <Label>Moteur KV</Label>
+              <StyledInput 
+                type="number" 
+                value={specs.kv}
+                onChange={(e) => handleInputChange('kv', parseInt(e.target.value) || 0)}
+              />
             </div>
-          </section>
-
-          {/* Frame & Style Specs */}
-          <section>
-            <h2 className="text-[#ff9800] text-sm font-bold uppercase tracking-wider mb-4 flex items-center">
-              <span className="mr-2"><IconChip /></span> Chassis & Pilote
-            </h2>
-            <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Type de Frame</label>
-                <select 
-                  value={specs.frameType}
-                  onChange={(e) => handleInputChange('frameType', e.target.value as FrameType)}
-                  className="w-full bg-[#1a1a1a] border border-[#444] rounded p-2 text-white focus:border-[#ff9800] focus:outline-none"
+                <Label>Cellules (S)</Label>
+                <StyledSelect 
+                  value={specs.cells}
+                  onChange={(e) => handleInputChange('cells', parseInt(e.target.value))}
                 >
-                  {Object.entries(FRAME_PRESETS).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
-                  ))}
-                </select>
+                  {[1,2,3,4,6,8].map(s => <option key={s} value={s}>{s}S</option>)}
+                </StyledSelect>
               </div>
-
               <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Style de Vol</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => handleInputChange('pilotStyle', 'aggressive')}
-                    className={`p-2 rounded text-xs font-bold border ${specs.pilotStyle === 'aggressive' ? 'bg-[#ff9800] text-black border-[#ff9800]' : 'bg-[#1a1a1a] text-gray-400 border-[#444] hover:border-gray-300'}`}
-                  >
-                    AGRESSIF
-                  </button>
-                  <button
-                    onClick={() => handleInputChange('pilotStyle', 'smooth')}
-                    className={`p-2 rounded text-xs font-bold border ${specs.pilotStyle === 'smooth' ? 'bg-[#4ade80] text-black border-[#4ade80]' : 'bg-[#1a1a1a] text-gray-400 border-[#444] hover:border-gray-300'}`}
-                  >
-                    SMOOTH / SÛR
-                  </button>
-                </div>
-                <p className="text-[10px] text-gray-500 mt-1 italic">
-                  {specs.pilotStyle === 'aggressive' ? "Réponse vive, filtrage minimal. (Risqué)" : "Fluidité maximale, filtrage sécurisé."}
-                </p>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Poids Estimé (g)</label>
-                <input 
-                  type="number" 
-                  value={specs.weight}
-                  onChange={(e) => handleInputChange('weight', parseInt(e.target.value))}
-                  className="w-full bg-[#1a1a1a] border border-[#444] rounded p-2 text-white focus:border-[#ff9800] focus:outline-none"
+                <Label>Hélice (In)</Label>
+                <StyledInput 
+                  type="number" step="0.1"
+                  value={specs.propSize}
+                  onChange={(e) => handleInputChange('propSize', parseFloat(e.target.value))}
                 />
               </div>
             </div>
-          </section>
+          </InputGroup>
 
-          {/* Action Button */}
+          <InputGroup label="Configuration" icon={IconChip}>
+            <div>
+              <Label>Type de Chassis</Label>
+              <StyledSelect 
+                value={specs.frameType}
+                onChange={(e) => handleInputChange('frameType', e.target.value as FrameType)}
+              >
+                {Object.entries(FRAME_PRESETS).map(([key, label]) => (
+                  <option key={key} value={key}>{label}</option>
+                ))}
+              </StyledSelect>
+            </div>
+            
+            <div>
+              <Label>Style de Pilotage</Label>
+              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-950 rounded-lg border border-slate-800">
+                <button
+                  onClick={() => handleInputChange('pilotStyle', 'aggressive')}
+                  className={`py-2 text-[10px] font-bold uppercase tracking-wide rounded-md transition-all ${specs.pilotStyle === 'aggressive' ? 'bg-orange-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'}`}
+                >
+                  Agressif
+                </button>
+                <button
+                  onClick={() => handleInputChange('pilotStyle', 'smooth')}
+                  className={`py-2 text-[10px] font-bold uppercase tracking-wide rounded-md transition-all ${specs.pilotStyle === 'smooth' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'}`}
+                >
+                  Smooth
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <Label>Poids (g)</Label>
+              <StyledInput 
+                type="number" 
+                value={specs.weight}
+                onChange={(e) => handleInputChange('weight', parseInt(e.target.value))}
+              />
+            </div>
+          </InputGroup>
+
+          {/* Compute Button */}
           <button 
             onClick={() => generateResult(!!fileName)}
-            className="w-full bg-[#ff9800] hover:bg-[#ffa726] text-black font-bold py-3 rounded uppercase tracking-wider flex items-center justify-center space-x-2 transition-all active:scale-95 shadow-lg shadow-orange-900/20"
+            className="w-full group relative bg-gradient-to-r from-orange-600 to-orange-500 hover:to-orange-400 text-white font-bold py-4 rounded-xl uppercase tracking-widest text-sm flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl shadow-orange-900/30 overflow-hidden"
           >
-            <IconZap />
-            <span>Générer le Tune</span>
+            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+            <IconZap className="w-5 h-5 relative z-10" />
+            <span className="relative z-10">Calculer le Tune</span>
           </button>
 
-          {/* Blackbox Section */}
-          <section className="pt-4 border-t border-[#444]">
-             <h2 className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-4 flex items-center justify-between">
-               <span className="flex items-center gap-2"><IconFile /> Blackbox Analysis</span>
-               <a href="https://github.com/betaflight/blackbox-log-viewer" target="_blank" rel="noreferrer" className="text-[#ff9800] hover:text-white" title="Ouvrir Blackbox Explorer">
-                 <IconExternalLink />
-               </a>
-            </h2>
-
-            {/* Guide Info */}
-            <div className="bg-[#1a1a1a] border border-[#333] rounded p-3 mb-4 text-xs text-gray-400">
-               <div className="flex items-center text-[#ff9800] mb-1 font-bold">
-                 <IconInfo /> <span className="ml-1">Configuration Requise</span>
-               </div>
-               <p className="leading-relaxed">Pour une analyse fiable :</p>
-               <ul className="list-disc pl-4 mt-1 space-y-1 text-gray-500">
-                 <li>Onglet Motors : <code className="text-gray-300">debug_mode = GYRO_SCALED</code></li>
-                 <li>Blackbox rate : <code className="text-gray-300">2kHz</code> (ou 1/1 pour PID loop 8k)</li>
-               </ul>
-            </div>
-
-            <div className="relative group cursor-pointer">
+          {/* Blackbox Dropzone */}
+          <div className="relative group">
+             <div className="flex justify-between items-center mb-2">
+                <Label>Blackbox (Optionnel)</Label>
+                <a href="https://github.com/betaflight/blackbox-log-viewer" target="_blank" rel="noreferrer" className="text-orange-500 hover:text-orange-400 transition-colors">
+                  <IconExternalLink className="w-3 h-3" />
+                </a>
+             </div>
+            <div className={`relative border border-dashed rounded-xl p-6 text-center transition-all duration-300 ${fileName ? 'border-emerald-500/50 bg-emerald-900/10' : 'border-slate-700 bg-slate-900/30 group-hover:border-slate-500 group-hover:bg-slate-800'}`}>
               <input 
                 type="file" 
                 onChange={handleFileUpload}
                 accept=".bbl,.csv"
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
-              <div className={`border-2 border-dashed ${fileName ? 'border-[#4ade80] bg-[#4ade8010]' : 'border-[#444] bg-[#1a1a1a]'} rounded-lg p-4 text-center transition-all group-hover:border-[#ff9800]`}>
-                {analyzing ? (
-                   <span className="text-[#ff9800] animate-pulse font-mono text-sm">Traitement FFT...</span>
-                ) : fileName ? (
-                  <div className="flex items-center justify-center text-[#4ade80] space-x-2">
-                    <IconCheck />
-                    <span className="text-xs truncate max-w-[150px]">{fileName}</span>
-                  </div>
-                ) : (
-                  <span className="text-xs text-gray-500">Uploader Log .BBL</span>
-                )}
-              </div>
+              {analyzing ? (
+                 <div className="flex flex-col items-center text-orange-500 animate-pulse">
+                    <IconZap className="w-6 h-6 mb-2" />
+                    <span className="text-xs font-mono">Analyse spectrale en cours...</span>
+                 </div>
+              ) : fileName ? (
+                <div className="flex flex-col items-center text-emerald-400">
+                  <IconCheck className="w-6 h-6 mb-2" />
+                  <span className="text-xs font-mono truncate max-w-[200px]">{fileName}</span>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center text-slate-500">
+                  <IconFile className="w-6 h-6 mb-2 group-hover:text-slate-300 transition-colors" />
+                  <span className="text-[10px] uppercase font-bold">Glisser fichier .BBL</span>
+                </div>
+              )}
             </div>
-            {error && <p className="text-red-500 text-xs mt-2 flex items-center"><span className="mr-1"><IconAlert/></span>{error}</p>}
-          </section>
+          </div>
 
         </div>
       </div>
 
-      {/* MAIN CONTENT */}
-      <div className="flex-1 bg-[#1e1e1e] p-6 md:p-12 overflow-y-auto">
+      {/* MAIN DISPLAY AREA */}
+      <div className="flex-1 bg-slate-950 p-4 md:p-10 overflow-y-auto relative">
         
-        {/* Header Visual */}
-        <div className="mb-8 flex justify-between items-end border-b border-[#333] pb-4">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-2">Résultats d'Ingénierie</h2>
-            <p className="text-gray-500 text-sm">
-              {tuneResult ? "Profil généré prêt à l'export." : "En attente de calcul..."}
-            </p>
-          </div>
-          <div className="text-right hidden md:block">
-            <div className="text-[#ff9800] font-mono text-3xl font-bold">{tuneResult ? tuneResult.rpmMax.toLocaleString() : "---"}</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wider">RPM Théorique Max</div>
-          </div>
+        {/* Background Decor */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+           <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-orange-600/5 rounded-full blur-[100px]"></div>
+           <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px]"></div>
         </div>
 
-        {!tuneResult ? (
-          <div className="flex flex-col items-center justify-center h-64 text-gray-600 border border-[#333] border-dashed rounded-lg">
-            <IconChip />
-            <p className="mt-4 text-sm">Configurez les paramètres à gauche et cliquez sur "GÉNÉRER"</p>
-          </div>
-        ) : (
-          <>
-            {/* Dashboard Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              
-              <div className="bg-[#2d2d2d] rounded-lg p-5 border-l-4 border-[#ff9800]">
-                <h3 className="text-gray-400 text-xs uppercase tracking-wider mb-2">Stratégie PID</h3>
-                <div className="text-xl font-bold text-white mb-1">
-                  {tuneResult?.pdGain && tuneResult.pdGain > 1.05 ? "Agressif (Sharp)" : tuneResult?.pdGain && tuneResult.pdGain < 0.95 ? "Fluide (Cinematic)" : "Equilibré"}
+        <div className="max-w-5xl mx-auto relative z-10">
+            {/* Top Bar */}
+            <div className="flex justify-between items-end border-b border-slate-800 pb-6 mb-8">
+            <div>
+                <h2 className="text-3xl font-bold text-white mb-2">Rapport d'Analyse</h2>
+                <p className="text-slate-500 text-sm flex items-center gap-2">
+                {tuneResult ? <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> : <span className="w-2 h-2 rounded-full bg-slate-600"></span>}
+                {tuneResult ? "Profil calculé avec succès." : "En attente des données d'entrée..."}
+                </p>
+            </div>
+            <div className="text-right hidden md:block">
+                <div className="text-4xl font-bold font-mono text-transparent bg-clip-text bg-gradient-to-r from-slate-200 to-slate-500">
+                    {tuneResult ? tuneResult.rpmMax.toLocaleString() : "00,000"}
                 </div>
-                <p className="text-xs text-gray-500">Optimisé pour {specs.frameType} en mode {specs.pilotStyle}.</p>
-              </div>
-
-              <div className="bg-[#2d2d2d] rounded-lg p-5 border-l-4 border-blue-500">
-                <h3 className="text-gray-400 text-xs uppercase tracking-wider mb-2">Filtrage Gyro</h3>
-                <div className="text-xl font-bold text-white mb-1">
-                  {tuneResult?.filterStrategy}
-                </div>
-                <p className="text-xs text-gray-500">Adapté à la signature vibratoire estimée.</p>
-              </div>
-
-              <div className="bg-[#2d2d2d] rounded-lg p-5 border-l-4 border-purple-500">
-                <h3 className="text-gray-400 text-xs uppercase tracking-wider mb-2">Feed Forward</h3>
-                <div className="text-xl font-bold text-white mb-1">
-                  {Math.floor((tuneResult?.ffGain || 1) * 100)}%
-                </div>
-                <p className="text-xs text-gray-500">Réactivité du manche.</p>
-              </div>
+                <div className="text-[10px] text-orange-500 uppercase tracking-widest font-bold mt-1">RPM Théorique</div>
+            </div>
             </div>
 
-            {/* AI Analysis Message */}
-            {(tuneResult?.analysisNote || tuneResult?.firmwareNote) && (
-              <div className="space-y-2 mb-6">
-                {tuneResult.analysisNote && (
-                  <div className="bg-[#2d2d2d] border border-[#444] rounded-lg p-4 flex items-start space-x-3">
-                    <div className="mt-1"><IconChip /></div>
-                    <div>
-                      <h4 className="text-sm font-bold text-[#ff9800]">Note de l'Ingénieur</h4>
-                      <p className="text-sm text-gray-300">{tuneResult.analysisNote}</p>
+            {!tuneResult ? (
+            <div className="h-[400px] border border-slate-800 border-dashed rounded-2xl flex flex-col items-center justify-center text-slate-600">
+                <div className="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center mb-6 animate-pulse">
+                    <IconChip className="w-8 h-8" />
+                </div>
+                <p className="text-sm uppercase tracking-wider">Configurez votre drone pour démarrer</p>
+            </div>
+            ) : (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                
+                {/* KPI Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-slate-900/40 border border-slate-800 p-5 rounded-xl backdrop-blur-md">
+                        <div className="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-2">Feeling PID</div>
+                        <div className="text-2xl font-bold text-white">
+                            {tuneResult?.pdGain > 1.05 ? "Agressif" : tuneResult?.pdGain < 0.95 ? "Cinématique" : "Equilibré"}
+                        </div>
+                        <div className="mt-2 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-orange-500" style={{ width: `${tuneResult.pdGain * 50}%` }}></div>
+                        </div>
                     </div>
-                  </div>
-                )}
-                {tuneResult.firmwareNote && (
-                   <div className="bg-[#2d2d2d] border border-blue-500/30 rounded-lg p-4 flex items-start space-x-3">
-                    <div className="mt-1 text-blue-400"><IconCpu /></div>
-                    <div>
-                      <h4 className="text-sm font-bold text-blue-400">Compatibilité Firmware</h4>
-                      <p className="text-sm text-gray-300">{tuneResult.firmwareNote}</p>
+
+                    <div className="bg-slate-900/40 border border-slate-800 p-5 rounded-xl backdrop-blur-md">
+                        <div className="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-2">Filtrage</div>
+                        <div className="text-2xl font-bold text-white">{tuneResult?.filterStrategy}</div>
+                         <div className="mt-2 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                            <div className={`h-full ${tuneResult.filterStrategy.includes("Forte") ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: '70%' }}></div>
+                        </div>
                     </div>
-                  </div>
+
+                    <div className="bg-slate-900/40 border border-slate-800 p-5 rounded-xl backdrop-blur-md">
+                        <div className="text-slate-500 text-[10px] uppercase tracking-widest font-bold mb-2">Feed Forward</div>
+                        <div className="text-2xl font-bold text-white">{Math.floor((tuneResult?.ffGain || 1) * 100)}%</div>
+                         <div className="mt-2 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-purple-500" style={{ width: `${tuneResult.ffGain * 80}%` }}></div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Intelligence Notes */}
+                {(tuneResult?.analysisNote || tuneResult?.firmwareNote) && (
+                <div className="grid gap-4">
+                    {tuneResult.analysisNote && (
+                    <div className="bg-gradient-to-r from-orange-900/20 to-transparent border-l-4 border-orange-500 p-4 rounded-r-lg flex gap-4 items-start">
+                        <IconZap className="w-5 h-5 text-orange-500 mt-0.5" />
+                        <div>
+                            <h4 className="text-sm font-bold text-orange-400 uppercase tracking-wide">Note Blackbox</h4>
+                            <p className="text-sm text-slate-300 mt-1 leading-relaxed">{tuneResult.analysisNote}</p>
+                        </div>
+                    </div>
+                    )}
+                    {tuneResult.firmwareNote && (
+                    <div className="bg-slate-900/60 border border-slate-800 p-4 rounded-lg flex gap-4 items-center">
+                        <IconCpu className="w-5 h-5 text-blue-400" />
+                        <p className="text-sm text-slate-400">{tuneResult.firmwareNote}</p>
+                    </div>
+                    )}
+                </div>
                 )}
-              </div>
+
+                {/* Terminal Output */}
+                <div className="rounded-xl overflow-hidden border border-slate-800 shadow-2xl bg-[#0c0c0c]">
+                    <div className="bg-[#1a1a1a] px-4 py-2 flex justify-between items-center border-b border-[#2a2a2a]">
+                        <div className="flex gap-2">
+                            <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+                            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+                            <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+                        </div>
+                        <div className="text-[10px] font-mono text-slate-500 flex items-center gap-2">
+                             <IconTerminal className="w-3 h-3" /> bash — betaflight-cli
+                        </div>
+                        <button 
+                            onClick={copyToClipboard}
+                            className={`text-[10px] font-bold px-3 py-1 rounded uppercase tracking-wide transition-all ${copied ? 'bg-emerald-500 text-black' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}
+                        >
+                            {copied ? "Copié !" : "Copier"}
+                        </button>
+                    </div>
+                    <div className="p-6 overflow-x-auto custom-scrollbar">
+                        <pre className="font-mono text-sm leading-relaxed">
+                            <code className="text-emerald-500"># Betaflight Tune Generator v1.0</code><br/>
+                            <code className="text-slate-300">{tuneResult.cliOutput}</code>
+                        </pre>
+                    </div>
+                </div>
+                 <p className="text-xs text-slate-600 text-center">Copiez ce code dans l'onglet CLI de Betaflight Configurator et tapez <span className="font-mono text-slate-400">save</span>.</p>
+            </div>
             )}
-
-            {/* CLI Output Box */}
-            <div className="relative">
-              <div className="absolute top-0 right-0 p-2">
-                <button 
-                  onClick={copyToClipboard}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded text-sm font-bold transition-all ${copied ? 'bg-[#4ade80] text-black' : 'bg-[#ff9800] text-black hover:bg-[#ffa726]'}`}
-                >
-                  {copied ? <IconCheck /> : <IconCopy />}
-                  <span>{copied ? "Copié !" : "Copier CLI"}</span>
-                </button>
-              </div>
-              
-              <div className="bg-[#151515] rounded-lg border border-[#333] p-0 overflow-hidden shadow-2xl">
-                <div className="bg-[#252525] px-4 py-2 border-b border-[#333] flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span className="text-xs text-gray-500 font-mono ml-4">betaflight-cli-generator --v{specs.bfVersion}</span>
-                </div>
-                <pre className="p-6 text-sm font-mono text-gray-300 overflow-x-auto whitespace-pre-wrap leading-relaxed">
-                  {tuneResult?.cliOutput}
-                </pre>
-              </div>
-              <p className="text-xs text-gray-600 mt-2 text-center w-full">
-                Collez ce code dans l'onglet CLI de Betaflight Configurator et tapez 'save'.
-              </p>
-            </div>
-          </>
-        )}
-
+        </div>
       </div>
     </div>
   );
