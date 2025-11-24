@@ -19,12 +19,14 @@ interface ConfigState {
 
 interface AnalysisReport {
   gyroNoise: number;
-  dtermNoise: number;
-  vibrationLevel: 'LOW' | 'MEDIUM' | 'CRITICAL';
+  noiseIntensity: number; // 0 à 100
+  vibrationLevel: 'CLEAN' | 'NOISY' | 'CRITICAL';
   recommendation: string;
+  samplesAnalyzed: number;
+  trace: number[]; // VRAIES DONNÉES DU CSV
 }
 
-// --- ICONES SVG ---
+// --- ICONES SVG (Style Matrix) ---
 const Icon: React.FC<IconProps> = ({ children, size = 24, className = "", ...props }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" 
@@ -45,54 +47,118 @@ const Wind = (p: IconProps) => (<Icon {...p}><path d="M9.59 4.59A2 2 0 1 1 11 8H
 const Settings = (p: IconProps) => (<Icon {...p}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.39a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></Icon>);
 const Search = (p: IconProps) => (<Icon {...p}><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></Icon>);
 const CheckCircle = (p: IconProps) => (<Icon {...p}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></Icon>);
+const FileText = (p: IconProps) => (<Icon {...p}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></Icon>);
 
-// --- MOTEUR D'ANALYSE (Simulation FFT Ingénieur) ---
-const analyzeBlackboxData = async (file: File): Promise<AnalysisReport> => {
-    return new Promise((resolve) => {
+// --- MOTEUR D'ANALYSE CSV (AVEC EXTRACTION DE TRACE) ---
+const analyzeCSVData = async (file: File): Promise<AnalysisReport> => {
+    return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        const sampleSize = 10 * 1024 * 1024; 
+        const sampleSize = 2 * 1024 * 1024; 
         const blob = file.slice(0, sampleSize);
 
         reader.onload = (e) => {
-            const buffer = e.target?.result as ArrayBuffer;
-            const view = new Uint8Array(buffer);
+            const text = e.target?.result as string;
+            if (!text) return reject("Fichier vide");
+
+            const lines = text.split('\n');
+            if (lines.length < 10) return reject("Fichier CSV invalide");
+
+            // Détection colonnes
+            const header = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            const gyroIndex0 = header.findIndex(h => h.includes('gyroADC[0]') || h.toLowerCase().includes('roll'));
             
-            let pFrames = 0;
-            let noiseAccumulator = 0;
-            
-            for(let i = 0; i < view.length - 1; i++) {
-                if (view[i] === 0x50) { 
-                    pFrames++;
-                    if (i+1 < view.length) {
-                         noiseAccumulator += (view[i+1] % 20);
+            let noiseSum = 0;
+            let sampleCount = 0;
+            const step = 2; // Plus précis pour le graphique
+            const traceData: number[] = [];
+
+            // Extraction des données réelles pour le graphique (max 300 points)
+            for (let i = 1; i < Math.min(lines.length, 600); i += step) {
+                const row = lines[i].split(',');
+                if (gyroIndex0 !== -1 && row[gyroIndex0]) {
+                    const val = parseFloat(row[gyroIndex0]);
+                    if (!isNaN(val)) {
+                        traceData.push(val); // On garde la valeur brute (positive/négative)
+                        noiseSum += Math.abs(val);
+                        sampleCount++;
                     }
                 }
             }
 
-            const avgEntropy = noiseAccumulator / (pFrames || 1);
-            
-            const baseFreq = 100 + (file.size % 300); 
-            const secondaryFreq = Math.floor(baseFreq * 2.1);
-            const isNoisy = avgEntropy > 8;
+            const avgActivity = sampleCount > 0 ? noiseSum / sampleCount : 0;
+            let vibeLevel: 'CLEAN' | 'NOISY' | 'CRITICAL' = 'CLEAN';
+            let rec = "LOG SAIN. FILTRAGE STANDARD.";
+
+            if (avgActivity > 800) {
+                vibeLevel = 'CRITICAL';
+                rec = "BRUIT EXTRÊME DÉTECTÉ. FILTRES MAXIMAUX REQUIS.";
+            } else if (avgActivity > 400) {
+                vibeLevel = 'NOISY';
+                rec = "BRUIT MODÉRÉ. AUGMENTER FILTRAGE DYNAMIQUE.";
+            }
 
             setTimeout(() => {
                 resolve({
-                    gyroNoise: Math.floor(baseFreq),
-                    dtermNoise: secondaryFreq,
-                    vibrationLevel: isNoisy ? 'CRITICAL' : (avgEntropy > 5 ? 'MEDIUM' : 'LOW'),
-                    recommendation: isNoisy 
-                        ? "Filtres dynamiques agressifs requis. Vérifiez vis moteur." 
-                        : "Résonance saine. Tune propre possible."
+                    gyroNoise: 0, 
+                    noiseIntensity: Math.min(100, Math.floor(avgActivity / 10)),
+                    vibrationLevel: vibeLevel,
+                    recommendation: rec,
+                    samplesAnalyzed: sampleCount,
+                    trace: traceData // Le tableau de données pour le graphique
                 });
-            }, 1500);
+            }, 800);
         };
-        reader.readAsArrayBuffer(blob);
+        reader.readAsText(blob);
     });
+};
+
+// --- COMPOSANT GRAPH (CANVAS) ---
+const TraceGraph: React.FC<{ data: number[] }> = ({ data }) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas || !data.length) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // Reset
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Grid (Matrix style)
+        ctx.strokeStyle = '#003300';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for(let x=0; x<canvas.width; x+=20) { ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); }
+        for(let y=0; y<canvas.height; y+=20) { ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); }
+        ctx.stroke();
+
+        // Trace
+        ctx.strokeStyle = '#00FF41'; // Matrix Green
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        const maxVal = Math.max(...data.map(Math.abs), 100); // Scale auto
+        const centerY = canvas.height / 2;
+        const scaleY = (canvas.height / 2) / (maxVal * 1.2);
+        const stepX = canvas.width / data.length;
+
+        data.forEach((val, i) => {
+            const x = i * stepX;
+            const y = centerY - (val * scaleY);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+    }, [data]);
+
+    return <canvas ref={canvasRef} width={600} height={150} className="w-full h-full border border-[#00FF41] bg-black" />;
 };
 
 // --- COMPOSANT PRINCIPAL ---
 const FPVTuner: React.FC = () => {
-  // State Management
   const [config, setConfig] = useState<ConfigState>({
     bfVersion: '4.5',
     motorKv: '1950',
@@ -103,7 +169,7 @@ const FPVTuner: React.FC = () => {
   });
 
   const [flightStyle, setFlightStyle] = useState<string>('FREESTYLE');
-  const [blackboxFile, setBlackboxFile] = useState<File | null>(null);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisReport | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [cliOutput, setCliOutput] = useState<string>('');
@@ -112,126 +178,107 @@ const FPVTuner: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
 
-  // Styles Tailwind
-  const cardStyle = "bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-4 mb-8 relative";
-  const inputStyle = "w-full bg-white border-2 border-black p-2 focus:outline-none focus:bg-[#FFD700]/10 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all font-bold font-mono text-sm rounded-none h-10";
-  const labelStyle = "block font-black text-xs uppercase mb-2 tracking-wider border-l-4 border-black pl-2";
-  const buttonStyle = "w-full bg-white border-4 border-black py-4 px-4 font-black uppercase tracking-widest hover:bg-black hover:text-[#FFD700] transition-all active:translate-y-1 active:translate-x-1 active:shadow-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 text-lg";
+  // --- STYLES MATRIX ---
+  const matrixGreen = "text-[#00FF41]";
+  const matrixBorder = "border-[#00FF41]";
+  const bgBlack = "bg-black";
+  
+  const cardStyle = `bg-black border border-[#00FF41] shadow-[0_0_10px_rgba(0,255,65,0.2)] p-4 mb-8 relative`;
+  const inputStyle = `w-full bg-black border border-[#00FF41] text-[#00FF41] p-2 focus:outline-none focus:bg-[#001100] transition-all font-mono text-sm rounded-none h-10 placeholder-green-900`;
+  const labelStyle = `block font-bold text-xs uppercase mb-2 tracking-wider ${matrixGreen} border-l-2 border-[#00FF41] pl-2`;
+  const buttonStyle = `w-full bg-black border border-[#00FF41] text-[#00FF41] py-4 px-4 font-bold uppercase tracking-widest hover:bg-[#00FF41] hover:text-black transition-all active:translate-y-1 shadow-[0_0_5px_rgba(0,255,65,0.5)] flex items-center justify-center gap-2 text-lg`;
 
-  // Actions
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setConfig({ ...config, [e.target.name]: e.target.value });
   };
 
   const addLog = (msg: string) => {
-    setLogs(prev => [...prev, `[${new Date().toLocaleTimeString().split(' ')[0]}] ${msg}`]);
+    setLogs(prev => [...prev, `> ${msg}`]);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setBlackboxFile(file);
+      setCsvFile(file);
       setAnalysis(null);
       setLogs([]);
-      
       setIsAnalyzing(true);
-      addLog(`Chargement binaire: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`);
-      addLog("Initialisation du moteur FFT...");
+      
+      addLog(`INIT SEQUENCE... CHARGEMENT ${file.name}`);
+      addLog("DÉCODAGE FLUX CSV...");
       
       try {
-        const result = await analyzeBlackboxData(file);
+        const result = await analyzeCSVData(file);
         setAnalysis(result);
-        addLog(`ANALYSE TERMINÉE: Bruit Gyro détecté à ${result.gyroNoise}Hz`);
-        addLog(`Vibrations globales: ${result.vibrationLevel}`);
-        addLog(`Recommandation: ${result.recommendation}`);
+        addLog(`DATA EXTRAITE: ${result.samplesAnalyzed} POINTS`);
+        addLog(`SIGNAL GYRO: ${result.vibrationLevel}`);
       } catch (err) {
-        addLog("ERREUR: Fichier corrompu ou format invalide.");
+        addLog("ERREUR CRITIQUE: FICHIER CORROMPU");
       } finally {
         setIsAnalyzing(false);
       }
     }
   };
 
-  const generateCLI = (useBBX: boolean) => {
+  const generateCLI = (useCSV: boolean) => {
     const timestamp = new Date().toLocaleTimeString();
     let generatedText = `
-# FPV TUNER V2.3 [AI ENGINEER EDITION]
+# FPV TUNER V2.5 [MATRIX ENGINEER]
 # DATE: ${new Date().toLocaleDateString()} ${timestamp}
-# MACHINE: ${config.frame} / ${config.motorKv}KV / ${config.lipo}
-# STYLE: ${flightStyle}
+# SYSTEM: ${config.frame} / ${config.motorKv}KV
+# MODE: ${useCSV ? 'DATA_DRIVEN' : 'PRESET_DB'}
+
+# --- MASTER CONFIGURATION ---
 `;
 
-    // MODE ANALYSE (Ingénieur)
-    if (useBBX) {
-        if (!analysis || !blackboxFile) {
-            alert("Analyse impossible : Aucun fichier Blackbox valide analysé.");
+    if (useCSV) {
+        if (!analysis || !csvFile) {
+            alert("ERREUR: INPUT MANQUANT");
             return;
         }
         
         generatedText += `
-# --- AI BLACKBOX ANALYSIS REPORT ---
-# SOURCE FILE: ${blackboxFile.name}
-# GYRO PEAK NOISE: ${analysis.gyroNoise}Hz (Center Freq)
-# DTERM HARMONIC: ${analysis.dtermNoise}Hz
-# VIBRATION GRADE: ${analysis.vibrationLevel}
-#
-# >> APPLYING ADAPTIVE FILTERING BASED ON FFT RESULTS...
+# >>> BLACKBOX ANALYSIS REPORT <<<
+# SOURCE: ${csvFile.name}
+# INTENSITY: ${analysis.noiseIntensity}%
+# STATUS: ${analysis.vibrationLevel}
 `;
         if (analysis.vibrationLevel === 'CRITICAL') {
             generatedText += `
 set dyn_notch_count = 3
-set dyn_notch_q = 300
-set dyn_notch_min_hz = ${Math.floor(analysis.gyroNoise * 0.8)}
-set dterm_lpf1_type = PT1
-set dterm_lpf1_static_hz = ${Math.floor(analysis.gyroNoise * 0.6)}
-set gyro_lpf1_static_hz = 0
-set gyro_lpf2_static_hz = 0
+set dyn_notch_q = 250
+set dterm_lpf1_static_hz = 60
+set gyro_lpf1_static_hz = 250
+`;
+        } else if (analysis.vibrationLevel === 'NOISY') {
+             generatedText += `
+set dyn_notch_count = 1
+set dyn_notch_q = 120
+set dterm_lpf1_static_hz = 90
 `;
         } else {
             generatedText += `
 set dyn_notch_count = 1
 set dyn_notch_q = 120
-set dyn_notch_min_hz = ${Math.floor(analysis.gyroNoise * 0.9)}
-set dterm_lpf1_type = PT1
-set dterm_lpf1_static_hz = 0
+set dterm_lpf1_static_hz = 150
 set gyro_lpf1_static_hz = 0
 set gyro_lpf2_static_hz = 0
 `;
         }
     } else {
         generatedText += `
-# --- STANDARD PRESET DATABASE MODE ---
-# NO BLACKBOX DATA AVAILABLE. USING SAFE DEFAULTS.
+# --- SAFE MODE PRESETS ---
 `;
         if (config.frame.includes('Whoop')) {
-             generatedText += `
-set dyn_notch_min_hz = 150
-set dterm_lpf1_static_hz = 150
-set vbat_sag_compensation = 0`;
-        } else if (config.frame.includes('7pouces')) {
-            generatedText += `
-set dyn_notch_min_hz = 80
-set dterm_lpf1_static_hz = 70`;
+             generatedText += `set dyn_notch_min_hz = 150\nset vbat_sag_compensation = 0`;
         }
     }
 
-    // MODE STYLE DE VOL
     if (flightStyle === 'AGRESSIF' || flightStyle === 'SBANG') {
-      generatedText += `
-# STYLE: AGGRESSIVE / SBANG
-set feedforward_transition = 0
-set iterm_relax_cutoff = 20
-set vbat_sag_compensation = 100
-set pid_at_min_throttle = OFF`;
-    } else if (flightStyle === 'CINEMATIC') {
-      generatedText += `
-# STYLE: CINEMATIC SMOOTH
-set feedforward_transition = 40
-set iterm_relax_cutoff = 10
-set dterm_lpf1_static_hz = 70`;
+      generatedText += `\n# PROFILE: AGGRESSIVE\nset feedforward_transition = 0\nset vbat_sag_compensation = 100`;
     }
 
-    generatedText += `\n\n# DONT FORGET TO SAVE\nsave`;
+    generatedText += `\n\nsave`;
     setCliOutput(generatedText);
     
     setTimeout(() => {
@@ -242,12 +289,12 @@ set dterm_lpf1_static_hz = 70`;
   const copyToClipboard = () => {
     if (!cliOutput) return;
     navigator.clipboard.writeText(cliOutput);
-    alert("CLI copié dans le presse-papier !");
+    alert("COPIE TERMINÉE");
   };
 
   const resetForm = () => {
     setCliOutput('');
-    setBlackboxFile(null);
+    setCsvFile(null);
     setAnalysis(null);
     setLogs([]);
     setFlightStyle('FREESTYLE');
@@ -255,25 +302,23 @@ set dterm_lpf1_static_hz = 70`;
   };
 
   return (
-    <div className="min-h-screen bg-[#FFD700] font-sans p-4 md:p-8 text-black">
+    <div className="min-h-screen bg-black font-mono p-4 md:p-8 text-[#00FF41]">
       
       {/* HEADER */}
-      <header className="max-w-4xl mx-auto mb-10 text-center border-4 border-black bg-white p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] relative">
-        <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase mb-0 leading-none">
-          FPV TUNER <span className="text-[#FFD700] drop-shadow-[2px_2px_0_rgba(0,0,0,1)]" style={{ textShadow: '4px 4px 0 #000' }}>*</span>
+      <header className={`max-w-4xl mx-auto mb-10 text-center border border-[#00FF41] bg-black p-8 shadow-[0_0_20px_rgba(0,255,65,0.1)] relative overflow-hidden`}>
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00FF41] to-transparent opacity-50"></div>
+        <h1 className="text-5xl md:text-7xl font-bold tracking-tighter uppercase mb-0 leading-none text-white" style={{textShadow: "0 0 10px #00FF41"}}>
+          FPV TUNER
         </h1>
         <div className="flex items-center justify-center gap-4 mt-4">
-            <div className="h-2 bg-black w-16"></div>
-            <h2 className="text-xl md:text-2xl font-black font-mono bg-black text-white px-4 py-1">By ARNO-FPV</h2>
-            <div className="h-2 bg-black w-16"></div>
+            <div className="h-px bg-[#00FF41] w-16"></div>
+            <h2 className="text-xl font-bold bg-[#00FF41] text-black px-4 py-1">ARNO-FPV</h2>
+            <div className="h-px bg-[#00FF41] w-16"></div>
         </div>
-        <div className="mt-4 flex flex-col items-center">
-            <p className="font-mono text-xs md:text-sm font-bold border-2 border-black inline-block px-3 py-1 transform -rotate-1 bg-[#FFD700] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-            A ENGINEERING TOOL V2.3
+        <div className="mt-4">
+            <p className="text-xs font-bold border border-[#00FF41] inline-block px-3 py-1 text-[#00FF41]">
+            V2.5 [MATRIX_ENGINEER]
             </p>
-            <span className="text-[10px] font-mono mt-1 font-bold text-gray-500 uppercase">
-                Powered by AI Blackbox Analysis Engine
-            </span>
         </div>
       </header>
 
@@ -281,92 +326,50 @@ set dterm_lpf1_static_hz = 70`;
 
         {/* 1 - CONFIGURATION */}
         <section className={cardStyle}>
-            <div className="absolute -top-5 left-4 bg-black text-white border-2 border-white px-4 py-2 text-lg font-black uppercase transform -rotate-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)]">
-                1 - Configuration Machine
+            <div className="absolute -top-3 left-4 bg-black border border-[#00FF41] px-4 py-1 text-sm font-bold uppercase text-[#00FF41]">
+                1 :: SYSTEM CONFIG
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <div>
-                    <label className={labelStyle}>Version BF</label>
+                    <label className={labelStyle}>BF Version</label>
                     <select name="bfVersion" value={config.bfVersion} onChange={handleConfigChange} className={inputStyle}>
                         <option value="4.5">Betaflight 4.5</option>
                         <option value="4.4">Betaflight 4.4</option>
-                        <option value="4.3">Betaflight 4.3</option>
                     </select>
                 </div>
                 <div>
-                    <label className={labelStyle}>Châssis / Frame</label>
+                    <label className={labelStyle}>FRAME</label>
                     <select name="frame" value={config.frame} onChange={handleConfigChange} className={inputStyle}>
-                        <option value="TinyWhoop65">Tiny Whoop 65mm</option>
-                        <option value="TinyWhoop75">Tiny Whoop 75mm</option>
-                        <option value="2pouces">2 / 2.5 pouces (Cine)</option>
-                        <option value="3pouces">3 pouces (Toothpick/Cine)</option>
-                        <option value="3.5pouces">3.5 pouces (Freestyle)</option>
-                        <option value="5pouces">5 pouces (Standard)</option>
-                        <option value="6pouces">6 pouces</option>
-                        <option value="7pouces">7 pouces (Long Range)</option>
-                        <option value="XClass">X-Class / Cinelifter</option>
+                        <option value="5pouces">5" Standard</option>
+                        <option value="TinyWhoop65">65mm Whoop</option>
+                        <option value="7pouces">7" Long Range</option>
                     </select>
                 </div>
                 <div>
-                    <label className={labelStyle}>KV Moteur</label>
+                    <label className={labelStyle}>KV</label>
                     <select name="motorKv" value={config.motorKv} onChange={handleConfigChange} className={inputStyle}>
-                        <option value="25000">25000 KV (Tiny 1S)</option>
-                        <option value="19000">19000 KV (Tiny 1S)</option>
-                        <option value="11000">11000 KV (Tiny 2S)</option>
-                        <option value="4500">4500 KV (3")</option>
-                        <option value="3600">3600 KV (4S Cine)</option>
-                        <option value="2650">2650 KV (4S Freestyle)</option>
-                        <option value="2450">2450 KV (4S Freestyle)</option>
-                        <option value="1950">1950 KV (6S Freestyle)</option>
-                        <option value="1750">1750 KV (6S Freestyle)</option>
-                        <option value="1300">1300 KV (7" LR)</option>
-                        <option value="1000">1000 KV et moins</option>
+                        <option value="1950">1950 KV</option>
+                        <option value="25000">25000 KV</option>
+                        <option value="1750">1750 KV</option>
                     </select>
                 </div>
                 <div>
-                    <label className={labelStyle}>Lipo(s)</label>
+                    <label className={labelStyle}>CELLS</label>
                     <select name="lipo" value={config.lipo} onChange={handleConfigChange} className={inputStyle}>
-                        <option value="1S">1S</option>
-                        <option value="2S">2S</option>
-                        <option value="3S">3S</option>
-                        <option value="4S">4S</option>
-                        <option value="5S">5S</option>
                         <option value="6S">6S</option>
-                        <option value="8S">8S+</option>
+                        <option value="4S">4S</option>
+                        <option value="1S">1S</option>
                     </select>
-                </div>
-                 <div>
-                    <label className={labelStyle}>Hélice (in/mm)</label>
-                    <select name="propSize" value={config.propSize} onChange={handleConfigChange} className={inputStyle}>
-                        <option value="31mm">31mm (Whoop)</option>
-                        <option value="40mm">40mm (Whoop)</option>
-                        <option value="2">2 pouces</option>
-                        <option value="2.5">2.5 pouces</option>
-                        <option value="3">3 pouces</option>
-                        <option value="3.5">3.5 pouces</option>
-                        <option value="4">4 pouces</option>
-                        <option value="5">5 pouces</option>
-                        <option value="5.1">5.1 pouces</option>
-                        <option value="6">6 pouces</option>
-                        <option value="7">7 pouces</option>
-                    </select>
-                </div>
-                <div>
-                    <label className={labelStyle}>Poids (avec Lipo)</label>
-                    <div className="flex items-center">
-                        <input type="number" name="weight" value={config.weight} onChange={handleConfigChange} className={inputStyle} placeholder="ex: 650" />
-                        <span className="ml-2 font-black text-xl w-8 text-center bg-black text-white h-10 leading-10">g</span>
-                    </div>
                 </div>
             </div>
         </section>
 
-        {/* 2 - STYLE DE VOL */}
+        {/* 2 - STYLE */}
         <section className={cardStyle}>
-            <div className="absolute -top-5 right-4 bg-black text-white border-2 border-white px-4 py-2 text-lg font-black uppercase transform rotate-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)]">
-                2 - Style de vol
+            <div className="absolute -top-3 right-4 bg-black border border-[#00FF41] px-4 py-1 text-sm font-bold uppercase text-[#00FF41]">
+                2 :: PILOT PROFILE
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 {[
                     { id: 'AGRESSIF', icon: <Zap size={20}/> },
                     { id: 'SBANG', icon: <Activity size={20}/> },
@@ -379,10 +382,10 @@ set dterm_lpf1_static_hz = 70`;
                         key={style.id}
                         onClick={() => setFlightStyle(style.id)}
                         className={`
-                            border-2 border-black p-4 font-black text-sm md:text-base uppercase flex flex-col items-center justify-center gap-2 transition-all
+                            border border-[#00FF41] p-4 font-bold text-sm uppercase flex flex-col items-center justify-center gap-2 transition-all
                             ${flightStyle === style.id 
-                                ? 'bg-black text-[#FFD700] shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] translate-y-1 translate-x-1 ring-2 ring-[#FFD700]' 
-                                : 'bg-white hover:bg-gray-50 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-1 active:translate-x-1'}
+                                ? 'bg-[#00FF41] text-black shadow-[0_0_15px_#00FF41]' 
+                                : 'bg-black text-[#00FF41] hover:bg-[#001100]'}
                         `}
                     >
                         {style.icon}
@@ -392,132 +395,108 @@ set dterm_lpf1_static_hz = 70`;
             </div>
         </section>
 
-        {/* 3 - ANALYSEUR BLACKBOX (FFT ENGINE) */}
-        <section className={`${cardStyle} bg-gray-50`}>
-             <div className="absolute -top-5 left-4 bg-black text-white border-2 border-white px-4 py-2 text-lg font-black uppercase transform -rotate-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] flex items-center gap-2">
-                <Search size={20} className="text-[#FFD700]" />
-                3 - AI BLACKBOX ANALYZER
+        {/* 3 - ANALYSEUR CSV */}
+        <section className={cardStyle}>
+             <div className="absolute -top-3 left-4 bg-black border border-[#00FF41] px-4 py-1 text-sm font-bold uppercase text-[#00FF41] flex items-center gap-2">
+                <Search size={16} />
+                3 :: DATA ANALYZER
             </div>
             
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Zone de Drop */}
-                <div className="border-4 border-dashed border-black bg-white p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-[#FFD700]/10 transition-colors relative h-64">
+                <div className="border border-dashed border-[#00FF41] bg-[#001100] p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-[#002200] transition-colors relative h-64">
                     <input 
                         type="file" 
-                        accept=".bbl,.bfl,.csv" 
+                        accept=".csv" 
                         onChange={handleFileChange}
                         ref={fileInputRef}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
                     {isAnalyzing ? (
-                         <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-black mb-4"></div>
+                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00FF41] mb-4"></div>
                     ) : (
-                        <div className="bg-black text-white p-4 rounded-full mb-4">
-                            <Upload size={32} />
+                        <div className="text-[#00FF41] p-4 mb-4">
+                            <FileText size={48} />
                         </div>
                     )}
-                    <p className="font-black text-lg text-center uppercase">
-                        {isAnalyzing ? "DÉCODAGE BINAIRE EN COURS..." : (blackboxFile ? blackboxFile.name : "GLISSER FICHIER .BBL")}
-                    </p>
-                    <p className="text-xs font-bold uppercase mt-2 font-mono bg-[#FFD700] px-2 py-1">
-                        * Analyse spectrale (FFT) automatique
+                    <p className="font-bold text-lg text-center uppercase tracking-widest">
+                        {isAnalyzing ? "DECRYPTING..." : (csvFile ? csvFile.name : "DROP CSV FILE")}
                     </p>
                 </div>
 
-                {/* Console de Logs Ingénieur */}
-                <div className="bg-black border-4 border-black p-4 h-64 overflow-y-auto font-mono text-xs text-green-500 shadow-[inset_0_0_20px_rgba(0,255,0,0.1)]">
-                    <div className="border-b border-gray-800 pb-2 mb-2 flex justify-between">
-                        <span className="font-bold text-white">SYSTEM LOGS</span>
-                        <div className="flex gap-1">
-                            <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                            <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        </div>
+                <div className="bg-black border border-[#00FF41] p-4 h-64 overflow-y-auto font-mono text-xs text-[#00FF41] shadow-[inset_0_0_20px_rgba(0,255,65,0.1)]">
+                    <div className="border-b border-[#00FF41] pb-2 mb-2 flex justify-between">
+                        <span className="font-bold">SYSTEM_LOGS</span>
+                        <div className="w-2 h-2 bg-[#00FF41] animate-pulse"></div>
                     </div>
-                    {logs.length === 0 && <span className="text-gray-600">Waiting for data stream...</span>}
+                    {logs.length === 0 && <span className="opacity-50">Waiting for input stream...</span>}
                     {logs.map((log, i) => (
-                        <div key={i} className="mb-1 border-l-2 border-green-800 pl-2">
+                        <div key={i} className="mb-1 opacity-80 hover:opacity-100">
                             {log}
                         </div>
                     ))}
                     {analysis && (
-                        <div className="mt-4 border-t border-green-800 pt-2">
-                            <p className="text-[#FFD700] font-bold">{">>>"} REPORT GENERATED</p>
-                            <p>NOISE PROFILE: {analysis.vibrationLevel}</p>
-                            <p>PEAK FREQ: {analysis.gyroNoise} Hz</p>
+                         <div className="mt-4 border-t border-[#00FF41] pt-2 text-white">
+                            <p>{`>>> RESULT: ${analysis.vibrationLevel}`}</p>
+                            <p>{`>>> RECOM: ${analysis.recommendation}`}</p>
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Visualisation Spectrale (Si analyse faite) */}
+            {/* VISUALISATION CANVAS (TRACE RÉELLE) */}
             {analysis && (
-                <div className="mt-4 border-4 border-black bg-white p-4 relative overflow-hidden">
-                    <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 text-xs font-bold uppercase animate-pulse">
-                        Live Spectrum
+                <div className="mt-6 border border-[#00FF41] p-2 bg-black relative">
+                    <div className="absolute top-2 left-2 text-[10px] bg-black border border-[#00FF41] px-1 text-[#00FF41]">
+                        RAW_GYRO_ROLL_DATA
                     </div>
-                    <div className="flex items-end justify-between h-32 gap-1 px-4">
-                        {/* Simulation visuelle d'un graphe FFT */}
-                        {Array.from({ length: 40 }).map((_, i) => {
-                            // On génère des barres avec un pic autour de la fréquence détectée
-                            const isPeak = i > 25 && i < 30;
-                            const height = isPeak 
-                                ? 60 + Math.random() * 40 
-                                : 10 + Math.random() * 30;
-                            return (
-                                <div 
-                                    key={i} 
-                                    style={{ height: height + '%' }} 
-                                    className={`w-full ${isPeak ? 'bg-red-600' : 'bg-gray-300'} hover:bg-black transition-all`}
-                                ></div>
-                            );
-                        })}
+                    <div className="h-40 w-full">
+                        <TraceGraph data={analysis.trace} />
                     </div>
-                    <div className="flex justify-between text-xs font-mono font-bold mt-2">
-                        <span>0Hz</span>
-                        <span>{analysis.gyroNoise}Hz (PIC)</span>
-                        <span>500Hz</span>
+                    <div className="flex justify-between text-[10px] mt-1 text-[#00FF41] opacity-70">
+                        <span>T=0ms</span>
+                        <span>AMPLITUDE: {analysis.noiseIntensity}%</span>
+                        <span>T=End</span>
                     </div>
                 </div>
             )}
         </section>
 
-        {/* 4 - GENERATION */}
+        {/* 4 - ACTIONS */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-8 my-12">
             <button 
                 onClick={() => generateCLI(true)} 
                 disabled={!analysis}
-                className={`${buttonStyle} ${analysis ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-200 text-gray-400 cursor-not-allowed border-gray-400'}`}
+                className={`${buttonStyle} ${!analysis && 'opacity-30 cursor-not-allowed hover:bg-black hover:text-[#00FF41]'}`}
             >
-                <CheckCircle size={24} /> GÉNÉRER TUNE ADAPTATIF (AI)
+                <CheckCircle size={24} /> INITIALIZE DATA TUNE
             </button>
-            <button onClick={() => generateCLI(false)} className={`${buttonStyle} bg-[#FFD700]`}>
-                <Cpu size={24} /> TUNE STANDARD (BASE MAP)
+            <button onClick={() => generateCLI(false)} className={`${buttonStyle} text-white border-white hover:bg-white`}>
+                <Cpu size={24} /> STANDARD PRESET
             </button>
         </section>
 
-        {/* 5 - RESULTAT CLI */}
+        {/* 5 - OUTPUT */}
         <div ref={resultRef} className="pb-12">
             <section className={`${cardStyle} min-h-[300px] flex flex-col`}>
-                <div className="absolute -top-5 inset-x-0 flex justify-center">
-                        <div className="bg-[#FFD700] border-4 border-black px-6 py-2 font-black text-xl uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-2">
-                        <span>5 - Résultat CLI</span>
+                <div className="absolute -top-3 left-0 w-full flex justify-center">
+                        <div className="bg-[#00FF41] text-black px-6 py-1 font-bold text-lg uppercase shadow-[0_0_10px_#00FF41]">
+                        5 :: TERMINAL OUTPUT
                     </div>
                 </div>
 
                 <div className="mt-8 flex-grow relative">
                     {!cliOutput ? (
-                        <div className="absolute inset-0 flex items-center justify-center text-gray-400 font-mono font-bold text-center p-4 border-2 border-gray-200 border-dashed">
+                        <div className="absolute inset-0 flex items-center justify-center text-[#00FF41] opacity-30 font-bold text-center border border-dashed border-[#00FF41]">
                             <div>
-                                <p className="text-xl mb-2">ZONE D'ATTENTE</p>
-                                <p className="text-sm">IMPORTEZ UN FICHIER POUR L'ANALYSE IA OU UTILISEZ LE MODE STANDARD</p>
+                                <p className="text-xl mb-2">AWAITING GENERATION</p>
+                                <p className="text-sm">SYSTEM STANDBY</p>
                             </div>
                         </div>
                     ) : (
                         <textarea 
                             readOnly 
                             value={cliOutput}
-                            className="w-full h-80 bg-gray-900 text-[#00ff00] font-mono text-xs md:text-sm p-4 border-4 border-black focus:outline-none resize-none shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]"
+                            className="w-full h-80 bg-[#000500] text-[#00FF41] font-mono text-sm p-4 border border-[#00FF41] focus:outline-none resize-none shadow-[inset_0_0_20px_rgba(0,255,65,0.1)]"
                         />
                     )}
                 </div>
@@ -526,15 +505,12 @@ set dterm_lpf1_static_hz = 70`;
                     <button 
                         onClick={copyToClipboard} 
                         disabled={!cliOutput}
-                        className={`
-                            border-4 border-black py-3 font-black uppercase flex items-center justify-center gap-2 transition-all
-                            ${cliOutput ? 'bg-[#FFD700] hover:brightness-110 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-1' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}
-                        `}
+                        className={`border border-[#00FF41] py-3 font-bold uppercase flex items-center justify-center gap-2 hover:bg-[#00FF41] hover:text-black transition-all ${!cliOutput && 'opacity-50 cursor-not-allowed'}`}
                     >
-                        <Copy size={20}/> Copier CLI
+                        <Copy size={20}/> COPY BUFFER
                     </button>
-                    <button onClick={resetForm} className="bg-white border-4 border-black py-3 font-black uppercase hover:bg-red-50 text-red-600 flex items-center justify-center gap-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all">
-                        <RotateCcw size={20}/> Réinitialisation
+                    <button onClick={resetForm} className="border border-red-500 text-red-500 py-3 font-bold uppercase hover:bg-red-500 hover:text-black flex items-center justify-center gap-2 transition-all">
+                        <RotateCcw size={20}/> SYSTEM RESET
                     </button>
                 </div>
             </section>
@@ -542,16 +518,16 @@ set dterm_lpf1_static_hz = 70`;
 
       </main>
       
-      <footer className="max-w-4xl mx-auto mt-12 mb-8 text-center">
-        <div className="inline-block bg-black text-white px-4 py-2 font-mono text-xs font-bold border-2 border-[#FFD700]">
-            &copy; 2025 ARNO-FPV ENGINEERING. DESIGNED FOR PERFORMANCE.
-        </div>
+      <footer className="max-w-4xl mx-auto mt-12 mb-8 text-center text-[#00FF41] opacity-50 text-xs">
+         [ARNO-FPV ENGINEERING] :: SYSTEM_READY
       </footer>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=JetBrains+Mono:wght@400;800&display=swap');
-        body { font-family: 'Oswald', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap');
+        body { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { bg: #000; }
+        ::-webkit-scrollbar-thumb { bg: #00FF41; }
       `}</style>
     </div>
   );
