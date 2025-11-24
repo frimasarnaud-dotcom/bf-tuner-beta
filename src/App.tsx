@@ -74,42 +74,99 @@ const MatrixRain: React.FC = () => {
   return <canvas ref={canvasRef} className="fixed top-0 left-0 w-full h-full z-0 pointer-events-none" />;
 };
 
-// --- CSV ANALYZER ---
+// --- UNIVERSAL CSV PARSER V2.14 ---
 const analyzeCSVData = async (file: File): Promise<AnalysisReport> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const text = e.target?.result as string;
-            if (!text || text.length < 50) return reject("Fichier CSV invalide");
+            if (!text || text.length < 50) return reject("Fichier CSV invalide ou vide.");
             
             const lines = text.split('\n');
-            const header = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            
+            // 1. RECHERCHE INTELLIGENTE DE L'EN-TÊTE
+            // On cherche la ligne contenant les clés vitales, peu importe les métadonnées avant.
+            let headerIndex = -1;
+            
+            // Scan étendu jusqu'à 1000 lignes pour couvrir les gros dumps de config
+            for(let i=0; i < Math.min(lines.length, 1000); i++) {
+                if(lines[i].includes('loopIteration') && lines[i].includes('gyroADC')) {
+                    headerIndex = i;
+                    break;
+                }
+            }
+
+            if (headerIndex === -1) return reject("Format inconnu : Colonnes 'gyroADC' introuvables. Vérifiez l'export Blackbox.");
+
+            // 2. MAPPING DES COLONNES
+            // Nettoyage des guillemets éventuels ("gyroADC[0]")
+            const header = lines[headerIndex].split(',').map(h => h.trim().replace(/"/g, ''));
+            
+            // Recherche universelle (compatible Roll, Pitch, Yaw)
             const gyroIndex = header.findIndex(h => h.includes('gyroADC[0]') || h.toLowerCase().includes('roll'));
             
+            if (gyroIndex === -1) return reject("Impossible d'isoler le signal Gyroscope.");
+
             const traceData: number[] = [];
             let noiseSum = 0;
             let count = 0;
 
-            for(let i=1; i<Math.min(lines.length, 600); i+=3) {
+            // 3. EXTRACTION DU SIGNAL
+            // Step dynamique pour ne pas surcharger la mémoire
+            const step = Math.max(1, Math.floor(lines.length / 2000)); 
+
+            for(let i = headerIndex + 1; i < lines.length; i += step) {
                 const row = lines[i].split(',');
-                if(gyroIndex !== -1 && row[gyroIndex]) {
+                // Vérification stricte de l'existence de la donnée
+                if(row[gyroIndex] !== undefined && row[gyroIndex] !== "") {
                     const val = parseFloat(row[gyroIndex]);
                     if(!isNaN(val)) {
                         traceData.push(val);
-                        noiseSum += Math.abs(val);
+                        noiseSum += Math.abs(val); // Somme des amplitudes absolues (bruit)
                         count++;
                     }
                 }
             }
-            const intensity = Math.min(100, Math.floor((count > 0 ? noiseSum / count : 0) / 10));
+
+            if (count === 0) return reject("En-tête trouvée mais aucune donnée de vol (Log vide ?).");
+
+            // 4. ANALYSE UNIVERSELLE (PHYSICS BASED)
+            // Moyenne du bruit en dps (degrés par seconde) sur le signal brut
+            const avgNoise = noiseSum / count;
+            
+            // ÉCHELLE DE REFERENCE UNIVERSELLE (Betaflight Raw Gyro) :
+            // < 10 dps : Suspect (Simulation ou banc d'essai ?)
+            // 10 - 30 dps : Excellent montage mécanique
+            // 30 - 60 dps : Normal pour un drone de freestyle actif
+            // > 60 dps : Roulements usés, châssis résonant ou vis desserrée
+            
+            // Conversion en % d'intensité pour l'UI (basé sur un max réaliste de 80dps)
+            let intensity = Math.min(100, Math.floor((avgNoise * 100) / 60));
+            
+            // Si c'est 0 absolu, c'est louche
+            if (avgNoise === 0) intensity = 0;
+
+            let vibeLevel: 'CLEAN'|'NOISY'|'CRITICAL' = 'CLEAN';
+            let rec = "Vol sain. Configuration standard recommandée.";
+
+            if (intensity > 75) {
+                vibeLevel = 'CRITICAL';
+                rec = "DANGER : Résonance mécanique critique détectée. Vérifiez vos vis/roulements.";
+            } else if (intensity > 35) {
+                vibeLevel = 'NOISY';
+                rec = "Vibrations significatives. Filtrage renforcé nécessaire.";
+            }
+
             resolve({
-                gyroNoise: 0, noiseIntensity: intensity,
-                vibrationLevel: intensity > 60 ? 'CRITICAL' : intensity > 30 ? 'NOISY' : 'CLEAN',
-                recommendation: intensity > 30 ? "FILTRAGE RENFORCÉ NÉCESSAIRE" : "VOL SAIN - FILTRAGE STANDARD",
-                samplesAnalyzed: count, trace: traceData
+                gyroNoise: Math.floor(avgNoise), 
+                noiseIntensity: intensity,
+                vibrationLevel: vibeLevel,
+                recommendation: rec,
+                samplesAnalyzed: count, 
+                trace: traceData
             });
         };
-        reader.readAsText(file.slice(0, 1024*1024));
+        reader.readAsText(file);
     });
 };
 
@@ -125,15 +182,19 @@ const TraceGraph: React.FC<{ data: number[] }> = ({ data }) => {
         ctx.fillStyle = '#050505';
         ctx.fillRect(0, 0, cvs.width, cvs.height);
         
+        // Grille technique
         ctx.strokeStyle = '#003300';
         ctx.beginPath();
         for(let i=0; i<cvs.width; i+=40) { ctx.moveTo(i,0); ctx.lineTo(i,cvs.height); }
         ctx.stroke();
 
+        // Signal
         ctx.strokeStyle = '#00FF41';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        const max = Math.max(...data.map(Math.abs), 20);
+        
+        // Auto-scaling robuste : s'adapte à l'amplitude du signal, quel qu'il soit
+        const max = Math.max(...data.map(Math.abs), 5); // Min 5 pour éviter division par zero
         const mid = cvs.height/2;
         const scale = (mid-10)/max;
         const step = cvs.width/data.length;
@@ -171,22 +232,31 @@ const FPVTuner: React.FC = () => {
         setCsvFile(e.target.files[0]);
         setIsAnalyzing(true);
         try { setAnalysis(await analyzeCSVData(e.target.files[0])); }
-        catch(err) { alert("Fichier invalide"); }
+        catch(err) { alert("ERREUR ANALYSE : " + err); }
         finally { setIsAnalyzing(false); }
     }
   };
 
   const generate = () => {
     const ts = new Date().toLocaleTimeString();
-    let out = `# ARNO-FPV TUNER V2.11\n# DATE: ${ts}\n# BF VERSION: ${detectedBF}\n# HARDWARE: ${frameType} | ${motorKv}KV | ${propSize}"\n\n`;
+    let out = `# ARNO-FPV TUNER V2.14\n# DATE: ${ts}\n# BF VERSION: ${detectedBF}\n# HARDWARE: ${frameType} | ${motorKv}KV | ${propSize}"\n\n`;
     
     if(analysis) {
-        out += `# ANALYSIS REPORT: ${analysis.vibrationLevel} (${analysis.noiseIntensity}% Noise)\n`;
-        if(analysis.vibrationLevel === 'CRITICAL') out += `set dyn_notch_count = 3\nset dyn_notch_q = 250\nset dterm_lpf1_static_hz = 60\nset gyro_lpf1_static_hz = 250\n`;
-        else if(analysis.vibrationLevel === 'NOISY') out += `set dyn_notch_count = 1\nset dterm_lpf1_static_hz = 90\n`;
-        else out += `set dyn_notch_count = 1\nset dterm_lpf1_static_hz = 150\nset gyro_lpf1_static_hz = 0\n`;
+        out += `# ANALYSIS REPORT: ${analysis.vibrationLevel} (${analysis.noiseIntensity}% Activity)\n`;
+        out += `# RAW NOISE AVG: ${analysis.gyroNoise} dps\n`;
+        
+        if(analysis.vibrationLevel === 'CRITICAL') {
+             out += `\n# >>> CRITICAL NOISE - SAFETY PROFILE <<<\n`;
+             out += `set dyn_notch_count = 3\nset dyn_notch_q = 250\nset dterm_lpf1_type = PT1\nset dterm_lpf1_static_hz = 60\nset gyro_lpf1_static_hz = 250\nset dterm_lpf2_static_hz = 130\n`;
+        } else if(analysis.vibrationLevel === 'NOISY') {
+             out += `\n# >>> MODERATE NOISE - BALANCED PROFILE <<<\n`;
+             out += `set dyn_notch_count = 3\nset dyn_notch_q = 300\nset dterm_lpf1_static_hz = 85\nset gyro_lpf1_static_hz = 0\n`;
+        } else {
+             out += `\n# >>> CLEAN BUILD - PERFORMANCE PROFILE <<<\n`;
+             out += `set dyn_notch_count = 1\nset dyn_notch_q = 500\nset dterm_lpf1_type = PT1\nset dterm_lpf1_static_hz = 135\nset gyro_lpf1_static_hz = 0\nset gyro_lpf2_static_hz = 0\n`;
+        }
     } else {
-        out += `# PRESET MODE (NO BLACKBOX DATA)\nset vbat_sag_compensation = 0\n`;
+        out += `# PRESET MODE (NO DATA)\nset vbat_sag_compensation = 0\n`;
     }
     
     if(Number(motorKv) > 2000) out += `set vbat_sag_compensation = 100\n`;
@@ -196,7 +266,6 @@ const FPVTuner: React.FC = () => {
     setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
 
-  // Styles Modulaires
   const moduleBox = "relative bg-black/90 border-2 border-[#00FF41] shadow-[0_0_15px_rgba(0,255,65,0.2)] p-6 mb-10 z-10 backdrop-blur-sm";
   const moduleTitle = "absolute -top-4 left-4 bg-[#00FF41] text-black font-black text-sm px-4 py-1 uppercase tracking-widest border border-black";
 
@@ -207,7 +276,7 @@ const FPVTuner: React.FC = () => {
         
         <header className="text-center mb-16 relative z-20 mt-8">
           <h1 className="text-6xl md:text-8xl font-black mb-2 tracking-tighter drop-shadow-[0_0_10px_#00FF41]">FPV TUNER</h1>
-          <div className="text-sm font-bold border border-[#00FF41] inline-block px-4 py-1 bg-black">V2.11 [GHOST_ARCHITECT] :: ARNO-FPV</div>
+          <div className="text-sm font-bold border border-[#00FF41] inline-block px-4 py-1 bg-black">V2.14 [UNIVERSAL_CORE] :: ARNO-FPV</div>
         </header>
 
         <main className="max-w-4xl mx-auto">
@@ -264,15 +333,13 @@ const FPVTuner: React.FC = () => {
             <div className={moduleBox}>
                 <div className={moduleTitle}>3 :: DATA CENTER (Optional)</div>
                 <div className="flex flex-col md:flex-row gap-8 mt-2">
-                    
                     <div className="flex-1 space-y-4 border-r border-[#00FF41]/30 pr-4">
                         <div className="bg-[#001100] p-3 border border-[#00FF41]/50">
                             <h3 className="font-bold text-sm mb-2 underline decoration-[#00FF41]">COMMENT OBTENIR LE CSV ?</h3>
                             <ol className="text-xs space-y-2 list-decimal list-inside opacity-90">
-                                <li>Branchez le drone en USB.</li>
-                                <li>Ouvrez l'application <strong>Blackbox Explorer</strong>.</li>
-                                <li>Ouvrez votre fichier de log (.bbl).</li>
-                                <li>Cliquez sur <strong>"Export CSV"</strong>.</li>
+                                <li>Connectez via USB.</li>
+                                <li>Ouvrez <strong>Blackbox Explorer</strong>.</li>
+                                <li>Menu "Export" &gt; <strong>"Export CSV"</strong>.</li>
                             </ol>
                         </div>
                         <a href="https://blackbox.betaflight.com/" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 w-full border border-[#00FF41] py-2 text-xs font-bold hover:bg-[#00FF41] hover:text-black transition-colors uppercase">
@@ -288,7 +355,7 @@ const FPVTuner: React.FC = () => {
                             ) : analysis ? (
                                 <div className="text-center">
                                     <div className="text-3xl font-black mb-1">{analysis.noiseIntensity}%</div>
-                                    <div className="text-xs uppercase tracking-widest bg-[#00FF41] text-black px-2">NOISE DETECTED</div>
+                                    <div className="text-xs uppercase tracking-widest bg-[#00FF41] text-black px-2">NOISE INTENSITY</div>
                                 </div>
                             ) : (
                                 <>
@@ -308,13 +375,13 @@ const FPVTuner: React.FC = () => {
                     <div className={moduleTitle}>4 :: SIGNAL VISUALIZER</div>
                     <div className="mt-4">
                         <div className="flex justify-between items-end mb-2 text-xs">
-                            <span className="font-bold bg-[#00FF41] text-black px-2">GYRO ROLL RAW DATA</span>
+                            <span className="font-bold bg-[#00FF41] text-black px-2">GYRO RAW DATA</span>
                             <span className={analysis.vibrationLevel === 'CRITICAL' ? 'text-red-500 font-bold blink' : 'text-[#00FF41]'}>STATUS: {analysis.vibrationLevel}</span>
                         </div>
                         <div className="h-40 w-full bg-black border border-[#00FF41]">
                             <TraceGraph data={analysis.trace} />
                         </div>
-                        <div className="mt-2 text-xs text-center border-t border-[#00FF41]/30 pt-2 opacity-80">
+                        <div className="mt-2 text-xs text-center border-t border-[#00FF41]/30 pt-2 opacity-80 font-bold">
                             {analysis.recommendation}
                         </div>
                     </div>
@@ -340,7 +407,7 @@ const FPVTuner: React.FC = () => {
                                     <Copy size={16}/> Copy
                                 </button>
                                 <button onClick={() => {setCliOutput(''); setAnalysis(null); setDump(''); setCsvFile(null);}} className="bg-red-600 text-black px-4 py-2 text-xs font-bold hover:bg-red-500 hover:scale-105 transition-all flex items-center gap-2 uppercase">
-                                    <RotateCcw size={16}/> System Reset
+                                    <RotateCcw size={16}/> Reset
                                 </button>
                             </div>
                         </div>
