@@ -1,11 +1,10 @@
 import React, { useState, useRef } from 'react';
 
-// --- INTERFACES TYPESCRIPT (POUR CORRIGER LES ERREURS ROUGES) ---
+// --- INTERFACES & TYPES ---
 interface IconProps {
   size?: number;
   className?: string;
   children?: React.ReactNode;
-  // Permet d'accepter d'autres props comme onClick, style, etc.
   [key: string]: any;
 }
 
@@ -18,90 +17,29 @@ interface ConfigState {
   weight: string;
 }
 
-// --- ICONES SVG INTEGREES TYPÉES ---
+// --- ICONES SVG (Intégrées pour éviter les bugs) ---
 const Icon: React.FC<IconProps> = ({ children, size = 24, className = "", ...props }) => (
   <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-    {...props}
+    xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" 
+    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
+    className={className} {...props}
   >
     {children}
   </svg>
 );
 
-const Upload = (props: IconProps) => (
-  <Icon {...props}>
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-    <polyline points="17 8 12 3 7 8" />
-    <line x1="12" y1="3" x2="12" y2="15" />
-  </Icon>
-);
+const Upload = (p: IconProps) => (<Icon {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></Icon>);
+const Copy = (p: IconProps) => (<Icon {...p}><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></Icon>);
+const RotateCcw = (p: IconProps) => (<Icon {...p}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></Icon>);
+const Cpu = (p: IconProps) => (<Icon {...p}><rect x="4" y="4" width="16" height="16" rx="2" ry="2" /><rect x="9" y="9" width="6" height="6" /><line x1="9" y1="1" x2="9" y2="4" /><line x1="15" y1="1" x2="15" y2="4" /><line x1="9" y1="20" x2="9" y2="23" /><line x1="15" y1="20" x2="15" y2="23" /><line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" /><line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" /></Icon>);
+const Activity = (p: IconProps) => (<Icon {...p}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></Icon>);
+const Zap = (p: IconProps) => (<Icon {...p}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></Icon>);
+const Wind = (p: IconProps) => (<Icon {...p}><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2" /></Icon>);
+const Settings = (p: IconProps) => (<Icon {...p}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.39a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></Icon>);
 
-const Copy = (props: IconProps) => (
-  <Icon {...props}>
-    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-  </Icon>
-);
-
-const RotateCcw = (props: IconProps) => (
-  <Icon {...props}>
-    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-    <path d="M3 3v5h5" />
-  </Icon>
-);
-
-const Cpu = (props: IconProps) => (
-  <Icon {...props}>
-    <rect x="4" y="4" width="16" height="16" rx="2" ry="2" />
-    <rect x="9" y="9" width="6" height="6" />
-    <line x1="9" y1="1" x2="9" y2="4" />
-    <line x1="15" y1="1" x2="15" y2="4" />
-    <line x1="9" y1="20" x2="9" y2="23" />
-    <line x1="15" y1="20" x2="15" y2="23" />
-    <line x1="20" y1="9" x2="23" y2="9" />
-    <line x1="20" y1="14" x2="23" y2="14" />
-    <line x1="1" y1="9" x2="4" y2="9" />
-    <line x1="1" y1="14" x2="4" y2="14" />
-  </Icon>
-);
-
-const Activity = (props: IconProps) => (
-  <Icon {...props}>
-    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-  </Icon>
-);
-
-const Zap = (props: IconProps) => (
-  <Icon {...props}>
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-  </Icon>
-);
-
-const Wind = (props: IconProps) => (
-  <Icon {...props}>
-    <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2" />
-  </Icon>
-);
-
-const Settings = (props: IconProps) => (
-  <Icon {...props}>
-    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.39a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-    <circle cx="12" cy="12" r="3" />
-  </Icon>
-);
-
-// --- COMPOSANT PRINCIPAL ---
+// --- APPLICATION PRINCIPALE ---
 const FPVTuner: React.FC = () => {
-  // --- STATE MANAGEMENT ---
+  // Configuration par défaut
   const [config, setConfig] = useState<ConfigState>({
     bfVersion: '4.5',
     motorKv: '1950',
@@ -115,19 +53,16 @@ const FPVTuner: React.FC = () => {
   const [blackboxFile, setBlackboxFile] = useState<string | null>(null);
   const [cliOutput, setCliOutput] = useState<string>('');
   
-  // Refs correctement typées pour TypeScript
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
 
-  // --- STYLES CONSTANTS (NEO-BRUTALISM RENFORCÉ) ---
-  // Cadre noir plus épais (border-4) pour bien marquer le style schéma
+  // Styles "Industriel"
   const cardStyle = "bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-4 mb-8 relative";
-  const inputStyle = "w-full bg-white border-2 border-black p-2 focus:outline-none focus:bg-[#FFD700]/10 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all font-bold font-mono text-sm rounded-none";
+  const inputStyle = "w-full bg-white border-2 border-black p-2 focus:outline-none focus:bg-[#FFD700]/10 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all font-bold font-mono text-sm rounded-none h-10";
   const labelStyle = "block font-black text-xs uppercase mb-2 tracking-wider border-l-4 border-black pl-2";
-  
   const buttonStyle = "w-full bg-white border-4 border-black py-4 px-4 font-black uppercase tracking-widest hover:bg-black hover:text-[#FFD700] transition-all active:translate-y-1 active:translate-x-1 active:shadow-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 text-lg";
 
-  // --- HANDLERS ---
+  // Actions
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setConfig({ ...config, [e.target.name]: e.target.value });
   };
@@ -142,9 +77,9 @@ const FPVTuner: React.FC = () => {
     const timestamp = new Date().toLocaleTimeString();
     
     let generatedText = `
-# FPV TUNER V2.1 - GENERATED FOR ARNO-FPV
+# FPV TUNER V2.2 - GENERATED FOR ARNO-FPV
 # DATE: ${new Date().toLocaleDateString()} ${timestamp}
-# MACHINE: ${config.frame} / ${config.motorKv}KV / ${config.lipo}
+# MACHINE: ${config.frame} / ${config.motorKv}KV / ${config.lipo} / Props: ${config.propSize}"
 # STYLE: ${flightStyle}
 # MODE: ${useBBX ? 'BLACKBOX ANALYSIS' : 'PRESET DATABASE'}
 
@@ -155,6 +90,23 @@ set gyro_lpf1_static_hz = 0
 set dterm_lpf1_type = PT1
 `;
 
+    // Logique conditionnelle selon le châssis
+    if (config.frame.includes('Whoop') || config.frame.includes('65mm') || config.frame.includes('75mm')) {
+         generatedText += `
+# WHOOP PROFILE DETECTED
+set dyn_notch_min_hz = 150
+set dterm_lpf1_static_hz = 150
+set vbat_sag_compensation = 0
+`;
+    } else if (config.frame.includes('7pouces')) {
+        generatedText += `
+# LONG RANGE / 7 INCH PROFILE
+set dyn_notch_min_hz = 80
+set dterm_lpf1_static_hz = 70
+`;
+    }
+
+    // Logique selon le style
     if (flightStyle === 'AGRESSIF' || flightStyle === 'SBANG') {
       generatedText += `
 # AGGRESSIVE / SBANG PROFILE
@@ -168,12 +120,11 @@ set pid_at_min_throttle = OFF
 # SMOOTH / LR PROFILE
 set feedforward_transition = 40
 set iterm_relax_cutoff = 10
-set dterm_lpf1_static_hz = 70
 `;
     }
 
     if (useBBX && blackboxFile) {
-        generatedText += `\n# BLACKBOX ANALYSIS APPLIED from: ${blackboxFile}\n# Noise filters adjusted automatically based on spectral analysis.\nset gyro_lpf2_type = PT1\nset gyro_lpf2_static_hz = 250`;
+        generatedText += `\n# BLACKBOX ANALYSIS APPLIED from: ${blackboxFile}\n# Noise filters adjusted automatically.\nset gyro_lpf2_type = PT1\nset gyro_lpf2_static_hz = 250`;
     } else if (useBBX && !blackboxFile) {
         alert("Veuillez sélectionner un fichier Blackbox d'abord !");
         return;
@@ -183,7 +134,7 @@ set dterm_lpf1_static_hz = 70
     
     setCliOutput(generatedText);
     
-    // Scroll automatique vers le résultat
+    // Scroll automatique
     setTimeout(() => {
         resultRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
@@ -207,14 +158,14 @@ set dterm_lpf1_static_hz = 70
       
       {/* --- HEADER --- */}
       <header className="max-w-3xl mx-auto mb-10 text-center border-4 border-black bg-white p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] relative">
-        {/* Vis décoratives */}
+        {/* Vis de décoration */}
         <div className="absolute top-2 left-2 w-3 h-3 border-2 border-black rounded-full bg-gray-300 flex items-center justify-center"><div className="w-2 h-px bg-black rotate-45"></div></div>
         <div className="absolute top-2 right-2 w-3 h-3 border-2 border-black rounded-full bg-gray-300 flex items-center justify-center"><div className="w-2 h-px bg-black rotate-45"></div></div>
         <div className="absolute bottom-2 left-2 w-3 h-3 border-2 border-black rounded-full bg-gray-300 flex items-center justify-center"><div className="w-2 h-px bg-black rotate-45"></div></div>
         <div className="absolute bottom-2 right-2 w-3 h-3 border-2 border-black rounded-full bg-gray-300 flex items-center justify-center"><div className="w-2 h-px bg-black rotate-45"></div></div>
 
         <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase mb-0 leading-none">
-          FPV TUNER <span className="text-[#FFD700] drop-shadow-[2px_2px_0_rgba(0,0,0,1)] text-shadow-black" style={{ textShadow: '4px 4px 0 #000' }}>*</span>
+          FPV TUNER <span className="text-[#FFD700] drop-shadow-[2px_2px_0_rgba(0,0,0,1)]" style={{ textShadow: '4px 4px 0 #000' }}>*</span>
         </h1>
         <div className="flex items-center justify-center gap-4 mt-4">
             <div className="h-2 bg-black w-16"></div>
@@ -222,7 +173,7 @@ set dterm_lpf1_static_hz = 70
             <div className="h-2 bg-black w-16"></div>
         </div>
         <p className="font-mono text-xs md:text-sm mt-4 font-bold border-2 border-black inline-block px-3 py-1 transform -rotate-1 bg-[#FFD700] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-          A ENGINEERING TOOL V2.1
+          A ENGINEERING TOOL V2.2
         </p>
       </header>
 
@@ -238,35 +189,79 @@ set dterm_lpf1_static_hz = 70
                 <div>
                     <label className={labelStyle}>Version BF</label>
                     <select name="bfVersion" value={config.bfVersion} onChange={handleConfigChange} className={inputStyle}>
-                        <option value="4.3">Betaflight 4.3</option>
-                        <option value="4.4">Betaflight 4.4</option>
                         <option value="4.5">Betaflight 4.5</option>
+                        <option value="4.4">Betaflight 4.4</option>
+                        <option value="4.3">Betaflight 4.3</option>
                     </select>
                 </div>
+                
+                <div>
+                    <label className={labelStyle}>Châssis / Frame</label>
+                    <select name="frame" value={config.frame} onChange={handleConfigChange} className={inputStyle}>
+                        <option value="TinyWhoop65">Tiny Whoop 65mm</option>
+                        <option value="TinyWhoop75">Tiny Whoop 75mm</option>
+                        <option value="2pouces">2 / 2.5 pouces (Cine)</option>
+                        <option value="3pouces">3 pouces (Toothpick/Cine)</option>
+                        <option value="3.5pouces">3.5 pouces (Freestyle)</option>
+                        <option value="5pouces">5 pouces (Standard)</option>
+                        <option value="6pouces">6 pouces</option>
+                        <option value="7pouces">7 pouces (Long Range)</option>
+                        <option value="XClass">X-Class / Cinelifter</option>
+                    </select>
+                </div>
+
                 <div>
                     <label className={labelStyle}>KV Moteur</label>
-                    <input type="number" name="motorKv" value={config.motorKv} onChange={handleConfigChange} className={inputStyle} placeholder="ex: 1750" />
+                    <select name="motorKv" value={config.motorKv} onChange={handleConfigChange} className={inputStyle}>
+                        <option value="25000">25000 KV (Tiny 1S)</option>
+                        <option value="19000">19000 KV (Tiny 1S)</option>
+                        <option value="11000">11000 KV (Tiny 2S)</option>
+                        <option value="4500">4500 KV (3")</option>
+                        <option value="3600">3600 KV (4S Cine)</option>
+                        <option value="2650">2650 KV (4S Freestyle)</option>
+                        <option value="2450">2450 KV (4S Freestyle)</option>
+                        <option value="1950">1950 KV (6S Freestyle)</option>
+                        <option value="1750">1750 KV (6S Freestyle)</option>
+                        <option value="1300">1300 KV (7" LR)</option>
+                        <option value="1000">1000 KV et moins</option>
+                    </select>
                 </div>
+
                 <div>
                     <label className={labelStyle}>Lipo(s)</label>
                     <select name="lipo" value={config.lipo} onChange={handleConfigChange} className={inputStyle}>
+                        <option value="1S">1S</option>
+                        <option value="2S">2S</option>
+                        <option value="3S">3S</option>
                         <option value="4S">4S</option>
+                        <option value="5S">5S</option>
                         <option value="6S">6S</option>
+                        <option value="8S">8S+</option>
                     </select>
                 </div>
+
                 <div>
-                    <label className={labelStyle}>Châssis / Frame</label>
-                    <input type="text" name="frame" value={config.frame} onChange={handleConfigChange} className={inputStyle} placeholder="ex: Apex 5" />
+                    <label className={labelStyle}>Hélice (in/mm)</label>
+                    <select name="propSize" value={config.propSize} onChange={handleConfigChange} className={inputStyle}>
+                        <option value="31mm">31mm (Whoop)</option>
+                        <option value="40mm">40mm (Whoop)</option>
+                        <option value="2">2 pouces</option>
+                        <option value="2.5">2.5 pouces</option>
+                        <option value="3">3 pouces</option>
+                        <option value="3.5">3.5 pouces</option>
+                        <option value="4">4 pouces</option>
+                        <option value="5">5 pouces</option>
+                        <option value="5.1">5.1 pouces</option>
+                        <option value="6">6 pouces</option>
+                        <option value="7">7 pouces</option>
+                    </select>
                 </div>
-                <div>
-                    <label className={labelStyle}>Hélice (in)</label>
-                    <input type="text" name="propSize" value={config.propSize} onChange={handleConfigChange} className={inputStyle} placeholder="ex: 5.1" />
-                </div>
+
                 <div>
                     <label className={labelStyle}>Poids (avec Lipo)</label>
                     <div className="flex items-center">
-                        <input type="number" name="weight" value={config.weight} onChange={handleConfigChange} className={inputStyle} placeholder="gr" />
-                        <span className="ml-2 font-black text-xl">g</span>
+                        <input type="number" name="weight" value={config.weight} onChange={handleConfigChange} className={inputStyle} placeholder="ex: 650" />
+                        <span className="ml-2 font-black text-xl w-8 text-center bg-black text-white h-10 leading-10">g</span>
                     </div>
                 </div>
             </div>
