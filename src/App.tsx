@@ -11,9 +11,8 @@ const Copy = (p: IconProps) => (<Icon {...p}><rect x="9" y="9" width="13" height
 const RotateCcw = (p: IconProps) => (<Icon {...p}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></Icon>);
 const ExternalLink = (p: IconProps) => (<Icon {...p}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></Icon>);
 const Terminal = (p: IconProps) => (<Icon {...p}><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></Icon>);
-const Activity = (p: IconProps) => (<Icon {...p}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></Icon>);
 
-// --- MATRIX RAIN ENGINE (BIGGER & BOLDER) ---
+// --- MATRIX RAIN ENGINE ---
 const MatrixRain: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -29,7 +28,7 @@ const MatrixRain: React.FC = () => {
 
     const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ010101';
     const charArray = chars.split('');
-    const fontSize = 20; // PLUS GROS pour visibilité
+    const fontSize = 20; 
     const columns = Math.floor(canvas.width / fontSize);
     const drops: number[] = new Array(columns).fill(1);
     
@@ -38,7 +37,7 @@ const MatrixRain: React.FC = () => {
     const ghostRow = 8; 
     
     const draw = () => {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'; // Trail un peu plus court pour clarté
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'; 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = `bold ${fontSize}px monospace`;
 
@@ -126,13 +125,11 @@ const TraceGraph: React.FC<{ data: number[] }> = ({ data }) => {
         ctx.fillStyle = '#050505';
         ctx.fillRect(0, 0, cvs.width, cvs.height);
         
-        // Grid
         ctx.strokeStyle = '#003300';
         ctx.beginPath();
         for(let i=0; i<cvs.width; i+=40) { ctx.moveTo(i,0); ctx.lineTo(i,cvs.height); }
         ctx.stroke();
 
-        // Trace Line
         ctx.strokeStyle = '#00FF41';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -181,7 +178,7 @@ const FPVTuner: React.FC = () => {
 
   const generate = () => {
     const ts = new Date().toLocaleTimeString();
-    let out = `# ARNO-FPV TUNER V2.9\n# DATE: ${ts}\n# BF VERSION: ${detectedBF}\n# HARDWARE: ${frameType} | ${motorKv}KV | ${propSize}"\n\n`;
+    let out = `# ARNO-FPV TUNER V2.11\n# DATE: ${ts}\n# BF VERSION: ${detectedBF}\n# HARDWARE: ${frameType} | ${motorKv}KV | ${propSize}"\n\n`;
     
     if(analysis) {
         out += `# ANALYSIS REPORT: ${analysis.vibrationLevel} (${analysis.noiseIntensity}% Noise)\n`;
@@ -199,11 +196,8 @@ const FPVTuner: React.FC = () => {
     setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
 
-  // --- STYLES MODULAIRES ---
-  const green = "text-[#00FF41]";
-  // Le cadre principal : bordure verte épaisse, fond noir semi-transparent
+  // Styles Modulaires
   const moduleBox = "relative bg-black/90 border-2 border-[#00FF41] shadow-[0_0_15px_rgba(0,255,65,0.2)] p-6 mb-10 z-10 backdrop-blur-sm";
-  // Le titre du module : incrusté sur la bordure en haut
   const moduleTitle = "absolute -top-4 left-4 bg-[#00FF41] text-black font-black text-sm px-4 py-1 uppercase tracking-widest border border-black";
 
   return (
@@ -213,12 +207,12 @@ const FPVTuner: React.FC = () => {
         
         <header className="text-center mb-16 relative z-20 mt-8">
           <h1 className="text-6xl md:text-8xl font-black mb-2 tracking-tighter drop-shadow-[0_0_10px_#00FF41]">FPV TUNER</h1>
-          <div className="text-sm font-bold border border-[#00FF41] inline-block px-4 py-1 bg-black">V2.9 [GHOST_ARCHITECT] :: ARNO-FPV</div>
+          <div className="text-sm font-bold border border-[#00FF41] inline-block px-4 py-1 bg-black">V2.11 [GHOST_ARCHITECT] :: ARNO-FPV</div>
         </header>
 
         <main className="max-w-4xl mx-auto">
             
-            {/* --- MODULE 1: DUMP / SOURCE --- */}
+            {/* MODULE 1: DUMP */}
             <div className={moduleBox}>
                 <div className={moduleTitle}>1 :: SOURCE CODE</div>
                 <div className="mt-2 space-y-4">
@@ -229,7 +223,7 @@ const FPVTuner: React.FC = () => {
                         value={dump}
                         onChange={(e) => setDump(e.target.value)}
                         className="w-full h-32 bg-black border border-[#00FF41]/50 p-4 text-xs text-[#00FF41] focus:outline-none focus:border-[#00FF41] focus:shadow-[0_0_10px_#00FF41] transition-all resize-none placeholder-green-900"
-                        placeholder="> PASTE DUMP HERE TO AUTO-DETECT CONFIGURATION..."
+                        placeholder="&gt; PASTE DUMP HERE TO AUTO-DETECT CONFIGURATION..."
                     />
                     <div className="flex justify-end">
                          <span className="text-xs font-bold border border-[#00FF41] px-2 py-1 bg-[#002200]">
@@ -239,7 +233,7 @@ const FPVTuner: React.FC = () => {
                 </div>
             </div>
 
-            {/* --- MODULE 2: HARDWARE --- */}
+            {/* MODULE 2: HARDWARE */}
             <div className={moduleBox}>
                 <div className={moduleTitle}>2 :: DRONE HARDWARE</div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-2">
@@ -266,12 +260,11 @@ const FPVTuner: React.FC = () => {
                 </div>
             </div>
 
-            {/* --- MODULE 3: BLACKBOX DATA CENTER --- */}
+            {/* MODULE 3: DATA CENTER */}
             <div className={moduleBox}>
                 <div className={moduleTitle}>3 :: DATA CENTER (Optional)</div>
                 <div className="flex flex-col md:flex-row gap-8 mt-2">
                     
-                    {/* INSTRUCTIONS */}
                     <div className="flex-1 space-y-4 border-r border-[#00FF41]/30 pr-4">
                         <div className="bg-[#001100] p-3 border border-[#00FF41]/50">
                             <h3 className="font-bold text-sm mb-2 underline decoration-[#00FF41]">COMMENT OBTENIR LE CSV ?</h3>
@@ -280,14 +273,13 @@ const FPVTuner: React.FC = () => {
                                 <li>Ouvrez l'application <strong>Blackbox Explorer</strong>.</li>
                                 <li>Ouvrez votre fichier de log (.bbl).</li>
                                 <li>Cliquez sur <strong>"Export CSV"</strong>.</li>
-                                // FIX DU CACHE ARNO </ol>
+                            </ol>
                         </div>
                         <a href="https://blackbox.betaflight.com/" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 w-full border border-[#00FF41] py-2 text-xs font-bold hover:bg-[#00FF41] hover:text-black transition-colors uppercase">
                             <ExternalLink size={14}/> Accéder à BB Explorer Web
                         </a>
                     </div>
 
-                    {/* UPLOAD ZONE */}
                     <div className="flex-1">
                          <div className={`h-full border-2 border-dashed ${analysis ? 'border-[#00FF41] bg-[#001100]' : 'border-[#00FF41]/30 hover:border-[#00FF41]'} transition-all relative flex flex-col items-center justify-center group cursor-pointer min-h-[140px]`}>
                             <input type="file" accept=".csv" onChange={onFile} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
@@ -302,6 +294,7 @@ const FPVTuner: React.FC = () => {
                                 <>
                                     <Upload size={32} className="opacity-50 group-hover:opacity-100 mb-2 transition-opacity" />
                                     <span className="text-xs font-bold text-center">GLISSEZ VOTRE FICHIER<br/>CSV ICI</span>
+                                    {csvFile && <span className="text-[10px] mt-1 text-[#00FF41]">{csvFile.name}</span>}
                                 </>
                             )}
                         </div>
@@ -309,7 +302,7 @@ const FPVTuner: React.FC = () => {
                 </div>
             </div>
 
-            {/* --- MODULE 4: VISUALIZATION (Apparait si Data) --- */}
+            {/* MODULE 4: VISUALIZER */}
             {analysis && (
                 <div className={`${moduleBox} animate-in fade-in zoom-in-95 duration-500`}>
                     <div className={moduleTitle}>4 :: SIGNAL VISUALIZER</div>
@@ -328,14 +321,14 @@ const FPVTuner: React.FC = () => {
                 </div>
             )}
 
-            {/* --- MODULE 5: ACTION --- */}
+            {/* MODULE 5: ACTION */}
             <div className="mb-10">
                 <button onClick={generate} className="w-full bg-[#00FF41] text-black font-black text-2xl py-6 hover:bg-white hover:scale-[1.01] transition-all shadow-[0_0_25px_#00FF41] active:scale-[0.99] uppercase tracking-widest clip-path-polygon">
                     INITIALIZE COMPILATION
                 </button>
             </div>
 
-            {/* --- MODULE 6: OUTPUT TERMINAL --- */}
+            {/* MODULE 6: OUTPUT */}
             <div ref={resultRef} className="pb-20">
                 {cliOutput && (
                     <div className={`${moduleBox} border-4`}>
