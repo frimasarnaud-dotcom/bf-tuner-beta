@@ -280,7 +280,7 @@ const FPVTuner: React.FC = () => {
                                 <li>Ouvrez l'application <strong>Blackbox Explorer</strong>.</li>
                                 <li>Ouvrez votre fichier de log (.bbl).</li>
                                 <li>Cliquez sur <strong>"Export CSV"</strong>.</li>
-                            </ol>
+                                // FIX DU CACHE ARNO </ol>
                         </div>
                         <a href="https://blackbox.betaflight.com/" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 w-full border border-[#00FF41] py-2 text-xs font-bold hover:bg-[#00FF41] hover:text-black transition-colors uppercase">
                             <ExternalLink size={14}/> Accéder à BB Explorer Web
