@@ -23,8 +23,71 @@ interface AnalysisReport {
   vibrationLevel: 'CLEAN' | 'NOISY' | 'CRITICAL';
   recommendation: string;
   samplesAnalyzed: number;
-  trace: number[]; // VRAIES DONNÉES DU CSV
+  trace: number[];
 }
+
+// --- MATRIX RAIN EFFECT COMPONENT ---
+const MatrixRain: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas to full screen
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Matrix characters (Katakana + Latin + nums)
+    const chars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const charArray = chars.split('');
+
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops: number[] = [];
+
+    // Initialize drops
+    for (let i = 0; i < columns; i++) {
+      drops[i] = 1;
+    }
+
+    const draw = () => {
+      // Black with opacity to create trail effect
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#0F0'; // Matrix Green
+      ctx.font = `${fontSize}px monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = charArray[Math.floor(Math.random() * charArray.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        // Reset drop to top randomly
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    };
+
+    const interval = setInterval(draw, 33); // ~30 FPS
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('resize', resizeCanvas);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="fixed top-0 left-0 w-full h-full z-0 pointer-events-none" />;
+};
+
 
 // --- ICONES SVG (Style Matrix) ---
 const Icon: React.FC<IconProps> = ({ children, size = 24, className = "", ...props }) => (
@@ -49,7 +112,7 @@ const Search = (p: IconProps) => (<Icon {...p}><circle cx="11" cy="11" r="8"></c
 const CheckCircle = (p: IconProps) => (<Icon {...p}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></Icon>);
 const FileText = (p: IconProps) => (<Icon {...p}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></Icon>);
 
-// --- MOTEUR D'ANALYSE CSV (AVEC EXTRACTION DE TRACE) ---
+// --- MOTEUR D'ANALYSE CSV ---
 const analyzeCSVData = async (file: File): Promise<AnalysisReport> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -63,22 +126,20 @@ const analyzeCSVData = async (file: File): Promise<AnalysisReport> => {
             const lines = text.split('\n');
             if (lines.length < 10) return reject("Fichier CSV invalide");
 
-            // Détection colonnes
             const header = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
             const gyroIndex0 = header.findIndex(h => h.includes('gyroADC[0]') || h.toLowerCase().includes('roll'));
             
             let noiseSum = 0;
             let sampleCount = 0;
-            const step = 2; // Plus précis pour le graphique
+            const step = 2;
             const traceData: number[] = [];
 
-            // Extraction des données réelles pour le graphique (max 300 points)
             for (let i = 1; i < Math.min(lines.length, 600); i += step) {
                 const row = lines[i].split(',');
                 if (gyroIndex0 !== -1 && row[gyroIndex0]) {
                     const val = parseFloat(row[gyroIndex0]);
                     if (!isNaN(val)) {
-                        traceData.push(val); // On garde la valeur brute (positive/négative)
+                        traceData.push(val); 
                         noiseSum += Math.abs(val);
                         sampleCount++;
                     }
@@ -104,7 +165,7 @@ const analyzeCSVData = async (file: File): Promise<AnalysisReport> => {
                     vibrationLevel: vibeLevel,
                     recommendation: rec,
                     samplesAnalyzed: sampleCount,
-                    trace: traceData // Le tableau de données pour le graphique
+                    trace: traceData
                 });
             }, 800);
         };
@@ -122,11 +183,9 @@ const TraceGraph: React.FC<{ data: number[] }> = ({ data }) => {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Reset
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Grid (Matrix style)
         ctx.strokeStyle = '#003300';
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -134,12 +193,11 @@ const TraceGraph: React.FC<{ data: number[] }> = ({ data }) => {
         for(let y=0; y<canvas.height; y+=20) { ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); }
         ctx.stroke();
 
-        // Trace
-        ctx.strokeStyle = '#00FF41'; // Matrix Green
+        ctx.strokeStyle = '#00FF41';
         ctx.lineWidth = 2;
         ctx.beginPath();
 
-        const maxVal = Math.max(...data.map(Math.abs), 100); // Scale auto
+        const maxVal = Math.max(...data.map(Math.abs), 100); 
         const centerY = canvas.height / 2;
         const scaleY = (canvas.height / 2) / (maxVal * 1.2);
         const stepX = canvas.width / data.length;
@@ -154,7 +212,7 @@ const TraceGraph: React.FC<{ data: number[] }> = ({ data }) => {
 
     }, [data]);
 
-    return <canvas ref={canvasRef} width={600} height={150} className="w-full h-full border border-[#00FF41] bg-black" />;
+    return <canvas ref={canvasRef} width={600} height={150} className="w-full h-full border border-[#00FF41] bg-black/80" />;
 };
 
 // --- COMPOSANT PRINCIPAL ---
@@ -180,13 +238,11 @@ const FPVTuner: React.FC = () => {
 
   // --- STYLES MATRIX ---
   const matrixGreen = "text-[#00FF41]";
-  const matrixBorder = "border-[#00FF41]";
-  const bgBlack = "bg-black";
-  
-  const cardStyle = `bg-black border border-[#00FF41] shadow-[0_0_10px_rgba(0,255,65,0.2)] p-4 mb-8 relative`;
-  const inputStyle = `w-full bg-black border border-[#00FF41] text-[#00FF41] p-2 focus:outline-none focus:bg-[#001100] transition-all font-mono text-sm rounded-none h-10 placeholder-green-900`;
+  // On utilise une transparence très élevée (90%) pour voir le code derrière
+  const cardStyle = `bg-black/90 backdrop-blur-sm border border-[#00FF41] shadow-[0_0_15px_rgba(0,255,65,0.15)] p-4 mb-8 relative z-10`;
+  const inputStyle = `w-full bg-black/80 border border-[#00FF41] text-[#00FF41] p-2 focus:outline-none focus:bg-[#001100] transition-all font-mono text-sm rounded-none h-10 placeholder-green-900`;
   const labelStyle = `block font-bold text-xs uppercase mb-2 tracking-wider ${matrixGreen} border-l-2 border-[#00FF41] pl-2`;
-  const buttonStyle = `w-full bg-black border border-[#00FF41] text-[#00FF41] py-4 px-4 font-bold uppercase tracking-widest hover:bg-[#00FF41] hover:text-black transition-all active:translate-y-1 shadow-[0_0_5px_rgba(0,255,65,0.5)] flex items-center justify-center gap-2 text-lg`;
+  const buttonStyle = `w-full bg-black/80 border border-[#00FF41] text-[#00FF41] py-4 px-4 font-bold uppercase tracking-widest hover:bg-[#00FF41] hover:text-black transition-all active:translate-y-1 shadow-[0_0_5px_rgba(0,255,65,0.5)] flex items-center justify-center gap-2 text-lg`;
 
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setConfig({ ...config, [e.target.name]: e.target.value });
@@ -223,7 +279,7 @@ const FPVTuner: React.FC = () => {
   const generateCLI = (useCSV: boolean) => {
     const timestamp = new Date().toLocaleTimeString();
     let generatedText = `
-# FPV TUNER V2.5 [MATRIX ENGINEER]
+# FPV TUNER V2.6 [NEO EDITION]
 # DATE: ${new Date().toLocaleDateString()} ${timestamp}
 # SYSTEM: ${config.frame} / ${config.motorKv}KV
 # MODE: ${useCSV ? 'DATA_DRIVEN' : 'PRESET_DB'}
@@ -302,234 +358,238 @@ set gyro_lpf2_static_hz = 0
   };
 
   return (
-    <div className="min-h-screen bg-black font-mono p-4 md:p-8 text-[#00FF41]">
+    <>
+      <MatrixRain />
       
-      {/* HEADER */}
-      <header className={`max-w-4xl mx-auto mb-10 text-center border border-[#00FF41] bg-black p-8 shadow-[0_0_20px_rgba(0,255,65,0.1)] relative overflow-hidden`}>
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00FF41] to-transparent opacity-50"></div>
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tighter uppercase mb-0 leading-none text-white" style={{textShadow: "0 0 10px #00FF41"}}>
-          FPV TUNER
-        </h1>
-        <div className="flex items-center justify-center gap-4 mt-4">
-            <div className="h-px bg-[#00FF41] w-16"></div>
-            <h2 className="text-xl font-bold bg-[#00FF41] text-black px-4 py-1">ARNO-FPV</h2>
-            <div className="h-px bg-[#00FF41] w-16"></div>
-        </div>
-        <div className="mt-4">
-            <p className="text-xs font-bold border border-[#00FF41] inline-block px-3 py-1 text-[#00FF41]">
-            V2.5 [MATRIX_ENGINEER]
-            </p>
-        </div>
-      </header>
+      <div className="min-h-screen font-mono p-4 md:p-8 text-[#00FF41] relative z-10">
+        
+        {/* HEADER */}
+        <header className={`max-w-4xl mx-auto mb-10 text-center bg-black/80 backdrop-blur-md border border-[#00FF41] p-8 shadow-[0_0_20px_rgba(0,255,65,0.2)] relative overflow-hidden z-20`}>
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00FF41] to-transparent opacity-50 animate-pulse"></div>
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter uppercase mb-0 leading-none text-white" style={{textShadow: "0 0 15px #00FF41"}}>
+            FPV TUNER
+          </h1>
+          <div className="flex items-center justify-center gap-4 mt-4">
+              <div className="h-px bg-[#00FF41] w-16"></div>
+              <h2 className="text-xl font-bold bg-[#00FF41] text-black px-4 py-1">ARNO-FPV</h2>
+              <div className="h-px bg-[#00FF41] w-16"></div>
+          </div>
+          <div className="mt-4">
+              <p className="text-xs font-bold border border-[#00FF41] inline-block px-3 py-1 text-[#00FF41]">
+              V2.6 [NEO_EDITION]
+              </p>
+          </div>
+        </header>
 
-      <main className="max-w-4xl mx-auto space-y-10">
+        <main className="max-w-4xl mx-auto space-y-10 relative z-20">
 
-        {/* 1 - CONFIGURATION */}
-        <section className={cardStyle}>
-            <div className="absolute -top-3 left-4 bg-black border border-[#00FF41] px-4 py-1 text-sm font-bold uppercase text-[#00FF41]">
-                1 :: SYSTEM CONFIG
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                <div>
-                    <label className={labelStyle}>BF Version</label>
-                    <select name="bfVersion" value={config.bfVersion} onChange={handleConfigChange} className={inputStyle}>
-                        <option value="4.5">Betaflight 4.5</option>
-                        <option value="4.4">Betaflight 4.4</option>
-                    </select>
-                </div>
-                <div>
-                    <label className={labelStyle}>FRAME</label>
-                    <select name="frame" value={config.frame} onChange={handleConfigChange} className={inputStyle}>
-                        <option value="5pouces">5" Standard</option>
-                        <option value="TinyWhoop65">65mm Whoop</option>
-                        <option value="7pouces">7" Long Range</option>
-                    </select>
-                </div>
-                <div>
-                    <label className={labelStyle}>KV</label>
-                    <select name="motorKv" value={config.motorKv} onChange={handleConfigChange} className={inputStyle}>
-                        <option value="1950">1950 KV</option>
-                        <option value="25000">25000 KV</option>
-                        <option value="1750">1750 KV</option>
-                    </select>
-                </div>
-                <div>
-                    <label className={labelStyle}>CELLS</label>
-                    <select name="lipo" value={config.lipo} onChange={handleConfigChange} className={inputStyle}>
-                        <option value="6S">6S</option>
-                        <option value="4S">4S</option>
-                        <option value="1S">1S</option>
-                    </select>
-                </div>
-            </div>
-        </section>
+          {/* 1 - CONFIGURATION */}
+          <section className={cardStyle}>
+              <div className="absolute -top-3 left-4 bg-black border border-[#00FF41] px-4 py-1 text-sm font-bold uppercase text-[#00FF41] z-30">
+                  1 :: SYSTEM CONFIG
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                  <div>
+                      <label className={labelStyle}>BF Version</label>
+                      <select name="bfVersion" value={config.bfVersion} onChange={handleConfigChange} className={inputStyle}>
+                          <option value="4.5">Betaflight 4.5</option>
+                          <option value="4.4">Betaflight 4.4</option>
+                      </select>
+                  </div>
+                  <div>
+                      <label className={labelStyle}>FRAME</label>
+                      <select name="frame" value={config.frame} onChange={handleConfigChange} className={inputStyle}>
+                          <option value="5pouces">5" Standard</option>
+                          <option value="TinyWhoop65">65mm Whoop</option>
+                          <option value="7pouces">7" Long Range</option>
+                      </select>
+                  </div>
+                  <div>
+                      <label className={labelStyle}>KV</label>
+                      <select name="motorKv" value={config.motorKv} onChange={handleConfigChange} className={inputStyle}>
+                          <option value="1950">1950 KV</option>
+                          <option value="25000">25000 KV</option>
+                          <option value="1750">1750 KV</option>
+                      </select>
+                  </div>
+                  <div>
+                      <label className={labelStyle}>CELLS</label>
+                      <select name="lipo" value={config.lipo} onChange={handleConfigChange} className={inputStyle}>
+                          <option value="6S">6S</option>
+                          <option value="4S">4S</option>
+                          <option value="1S">1S</option>
+                      </select>
+                  </div>
+              </div>
+          </section>
 
-        {/* 2 - STYLE */}
-        <section className={cardStyle}>
-            <div className="absolute -top-3 right-4 bg-black border border-[#00FF41] px-4 py-1 text-sm font-bold uppercase text-[#00FF41]">
-                2 :: PILOT PROFILE
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-                {[
-                    { id: 'AGRESSIF', icon: <Zap size={20}/> },
-                    { id: 'SBANG', icon: <Activity size={20}/> },
-                    { id: 'BANDO', icon: <Settings size={20}/> },
-                    { id: 'RACE', icon: <Wind size={20}/> },
-                    { id: 'FREESTYLE', icon: <Cpu size={20}/> },
-                    { id: 'CINEMATIC', icon: <Upload size={20} className="rotate-90"/> }
-                ].map((style) => (
-                    <button
-                        key={style.id}
-                        onClick={() => setFlightStyle(style.id)}
-                        className={`
-                            border border-[#00FF41] p-4 font-bold text-sm uppercase flex flex-col items-center justify-center gap-2 transition-all
-                            ${flightStyle === style.id 
-                                ? 'bg-[#00FF41] text-black shadow-[0_0_15px_#00FF41]' 
-                                : 'bg-black text-[#00FF41] hover:bg-[#001100]'}
-                        `}
-                    >
-                        {style.icon}
-                        {style.id}
-                    </button>
-                ))}
-            </div>
-        </section>
+          {/* 2 - STYLE */}
+          <section className={cardStyle}>
+              <div className="absolute -top-3 right-4 bg-black border border-[#00FF41] px-4 py-1 text-sm font-bold uppercase text-[#00FF41] z-30">
+                  2 :: PILOT PROFILE
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                  {[
+                      { id: 'AGRESSIF', icon: <Zap size={20}/> },
+                      { id: 'SBANG', icon: <Activity size={20}/> },
+                      { id: 'BANDO', icon: <Settings size={20}/> },
+                      { id: 'RACE', icon: <Wind size={20}/> },
+                      { id: 'FREESTYLE', icon: <Cpu size={20}/> },
+                      { id: 'CINEMATIC', icon: <Upload size={20} className="rotate-90"/> }
+                  ].map((style) => (
+                      <button
+                          key={style.id}
+                          onClick={() => setFlightStyle(style.id)}
+                          className={`
+                              border border-[#00FF41] p-4 font-bold text-sm uppercase flex flex-col items-center justify-center gap-2 transition-all
+                              ${flightStyle === style.id 
+                                  ? 'bg-[#00FF41] text-black shadow-[0_0_15px_#00FF41]' 
+                                  : 'bg-black/60 text-[#00FF41] hover:bg-[#002200]'}
+                          `}
+                      >
+                          {style.icon}
+                          {style.id}
+                      </button>
+                  ))}
+              </div>
+          </section>
 
-        {/* 3 - ANALYSEUR CSV */}
-        <section className={cardStyle}>
-             <div className="absolute -top-3 left-4 bg-black border border-[#00FF41] px-4 py-1 text-sm font-bold uppercase text-[#00FF41] flex items-center gap-2">
-                <Search size={16} />
-                3 :: DATA ANALYZER
-            </div>
-            
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="border border-dashed border-[#00FF41] bg-[#001100] p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-[#002200] transition-colors relative h-64">
-                    <input 
-                        type="file" 
-                        accept=".csv" 
-                        onChange={handleFileChange}
-                        ref={fileInputRef}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                    />
-                    {isAnalyzing ? (
-                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00FF41] mb-4"></div>
-                    ) : (
-                        <div className="text-[#00FF41] p-4 mb-4">
-                            <FileText size={48} />
-                        </div>
-                    )}
-                    <p className="font-bold text-lg text-center uppercase tracking-widest">
-                        {isAnalyzing ? "DECRYPTING..." : (csvFile ? csvFile.name : "DROP CSV FILE")}
-                    </p>
-                </div>
+          {/* 3 - ANALYSEUR CSV */}
+          <section className={cardStyle}>
+              <div className="absolute -top-3 left-4 bg-black border border-[#00FF41] px-4 py-1 text-sm font-bold uppercase text-[#00FF41] flex items-center gap-2 z-30">
+                  <Search size={16} />
+                  3 :: DATA ANALYZER
+              </div>
+              
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="border border-dashed border-[#00FF41] bg-[#001100]/50 p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-[#002200] transition-colors relative h-64">
+                      <input 
+                          type="file" 
+                          accept=".csv" 
+                          onChange={handleFileChange}
+                          ref={fileInputRef}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      />
+                      {isAnalyzing ? (
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00FF41] mb-4"></div>
+                      ) : (
+                          <div className="text-[#00FF41] p-4 mb-4">
+                              <FileText size={48} />
+                          </div>
+                      )}
+                      <p className="font-bold text-lg text-center uppercase tracking-widest text-[#00FF41]">
+                          {isAnalyzing ? "DECRYPTING..." : (csvFile ? csvFile.name : "DROP CSV FILE")}
+                      </p>
+                  </div>
 
-                <div className="bg-black border border-[#00FF41] p-4 h-64 overflow-y-auto font-mono text-xs text-[#00FF41] shadow-[inset_0_0_20px_rgba(0,255,65,0.1)]">
-                    <div className="border-b border-[#00FF41] pb-2 mb-2 flex justify-between">
-                        <span className="font-bold">SYSTEM_LOGS</span>
-                        <div className="w-2 h-2 bg-[#00FF41] animate-pulse"></div>
-                    </div>
-                    {logs.length === 0 && <span className="opacity-50">Waiting for input stream...</span>}
-                    {logs.map((log, i) => (
-                        <div key={i} className="mb-1 opacity-80 hover:opacity-100">
-                            {log}
-                        </div>
-                    ))}
-                    {analysis && (
-                         <div className="mt-4 border-t border-[#00FF41] pt-2 text-white">
-                            <p>{`>>> RESULT: ${analysis.vibrationLevel}`}</p>
-                            <p>{`>>> RECOM: ${analysis.recommendation}`}</p>
-                        </div>
-                    )}
-                </div>
-            </div>
+                  <div className="bg-black/80 border border-[#00FF41] p-4 h-64 overflow-y-auto font-mono text-xs text-[#00FF41] shadow-[inset_0_0_20px_rgba(0,255,65,0.1)]">
+                      <div className="border-b border-[#00FF41] pb-2 mb-2 flex justify-between">
+                          <span className="font-bold">SYSTEM_LOGS</span>
+                          <div className="w-2 h-2 bg-[#00FF41] animate-pulse"></div>
+                      </div>
+                      {logs.length === 0 && <span className="opacity-50">Waiting for input stream...</span>}
+                      {logs.map((log, i) => (
+                          <div key={i} className="mb-1 opacity-80 hover:opacity-100">
+                              {log}
+                          </div>
+                      ))}
+                      {analysis && (
+                          <div className="mt-4 border-t border-[#00FF41] pt-2 text-white">
+                              <p>{`>>> RESULT: ${analysis.vibrationLevel}`}</p>
+                              <p>{`>>> RECOM: ${analysis.recommendation}`}</p>
+                          </div>
+                      )}
+                  </div>
+              </div>
 
-            {/* VISUALISATION CANVAS (TRACE RÉELLE) */}
-            {analysis && (
-                <div className="mt-6 border border-[#00FF41] p-2 bg-black relative">
-                    <div className="absolute top-2 left-2 text-[10px] bg-black border border-[#00FF41] px-1 text-[#00FF41]">
-                        RAW_GYRO_ROLL_DATA
-                    </div>
-                    <div className="h-40 w-full">
-                        <TraceGraph data={analysis.trace} />
-                    </div>
-                    <div className="flex justify-between text-[10px] mt-1 text-[#00FF41] opacity-70">
-                        <span>T=0ms</span>
-                        <span>AMPLITUDE: {analysis.noiseIntensity}%</span>
-                        <span>T=End</span>
-                    </div>
-                </div>
-            )}
-        </section>
+              {/* VISUALISATION CANVAS (TRACE RÉELLE) */}
+              {analysis && (
+                  <div className="mt-6 border border-[#00FF41] p-2 bg-black/90 relative">
+                      <div className="absolute top-2 left-2 text-[10px] bg-black border border-[#00FF41] px-1 text-[#00FF41] z-20">
+                          RAW_GYRO_ROLL_DATA
+                      </div>
+                      <div className="h-40 w-full">
+                          <TraceGraph data={analysis.trace} />
+                      </div>
+                      <div className="flex justify-between text-[10px] mt-1 text-[#00FF41] opacity-70">
+                          <span>T=0ms</span>
+                          <span>AMPLITUDE: {analysis.noiseIntensity}%</span>
+                          <span>T=End</span>
+                      </div>
+                  </div>
+              )}
+          </section>
 
-        {/* 4 - ACTIONS */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-8 my-12">
-            <button 
-                onClick={() => generateCLI(true)} 
-                disabled={!analysis}
-                className={`${buttonStyle} ${!analysis && 'opacity-30 cursor-not-allowed hover:bg-black hover:text-[#00FF41]'}`}
-            >
-                <CheckCircle size={24} /> INITIALIZE DATA TUNE
-            </button>
-            <button onClick={() => generateCLI(false)} className={`${buttonStyle} text-white border-white hover:bg-white`}>
-                <Cpu size={24} /> STANDARD PRESET
-            </button>
-        </section>
+          {/* 4 - ACTIONS */}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-8 my-12">
+              <button 
+                  onClick={() => generateCLI(true)} 
+                  disabled={!analysis}
+                  className={`${buttonStyle} ${!analysis && 'opacity-30 cursor-not-allowed hover:bg-black hover:text-[#00FF41]'}`}
+              >
+                  <CheckCircle size={24} /> INITIALIZE DATA TUNE
+              </button>
+              <button onClick={() => generateCLI(false)} className={`${buttonStyle} text-white border-white hover:bg-white hover:text-black`}>
+                  <Cpu size={24} /> STANDARD PRESET
+              </button>
+          </section>
 
-        {/* 5 - OUTPUT */}
-        <div ref={resultRef} className="pb-12">
-            <section className={`${cardStyle} min-h-[300px] flex flex-col`}>
-                <div className="absolute -top-3 left-0 w-full flex justify-center">
-                        <div className="bg-[#00FF41] text-black px-6 py-1 font-bold text-lg uppercase shadow-[0_0_10px_#00FF41]">
-                        5 :: TERMINAL OUTPUT
-                    </div>
-                </div>
+          {/* 5 - OUTPUT */}
+          <div ref={resultRef} className="pb-12">
+              <section className={`${cardStyle} min-h-[300px] flex flex-col`}>
+                  <div className="absolute -top-3 left-0 w-full flex justify-center z-30">
+                          <div className="bg-[#00FF41] text-black px-6 py-1 font-bold text-lg uppercase shadow-[0_0_10px_#00FF41]">
+                          5 :: TERMINAL OUTPUT
+                      </div>
+                  </div>
 
-                <div className="mt-8 flex-grow relative">
-                    {!cliOutput ? (
-                        <div className="absolute inset-0 flex items-center justify-center text-[#00FF41] opacity-30 font-bold text-center border border-dashed border-[#00FF41]">
-                            <div>
-                                <p className="text-xl mb-2">AWAITING GENERATION</p>
-                                <p className="text-sm">SYSTEM STANDBY</p>
-                            </div>
-                        </div>
-                    ) : (
-                        <textarea 
-                            readOnly 
-                            value={cliOutput}
-                            className="w-full h-80 bg-[#000500] text-[#00FF41] font-mono text-sm p-4 border border-[#00FF41] focus:outline-none resize-none shadow-[inset_0_0_20px_rgba(0,255,65,0.1)]"
-                        />
-                    )}
-                </div>
+                  <div className="mt-8 flex-grow relative">
+                      {!cliOutput ? (
+                          <div className="absolute inset-0 flex items-center justify-center text-[#00FF41] opacity-30 font-bold text-center border border-dashed border-[#00FF41]">
+                              <div>
+                                  <p className="text-xl mb-2">AWAITING GENERATION</p>
+                                  <p className="text-sm">SYSTEM STANDBY</p>
+                              </div>
+                          </div>
+                      ) : (
+                          <textarea 
+                              readOnly 
+                              value={cliOutput}
+                              className="w-full h-80 bg-[#000500]/90 text-[#00FF41] font-mono text-sm p-4 border border-[#00FF41] focus:outline-none resize-none shadow-[inset_0_0_20px_rgba(0,255,65,0.1)]"
+                          />
+                      )}
+                  </div>
 
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                    <button 
-                        onClick={copyToClipboard} 
-                        disabled={!cliOutput}
-                        className={`border border-[#00FF41] py-3 font-bold uppercase flex items-center justify-center gap-2 hover:bg-[#00FF41] hover:text-black transition-all ${!cliOutput && 'opacity-50 cursor-not-allowed'}`}
-                    >
-                        <Copy size={20}/> COPY BUFFER
-                    </button>
-                    <button onClick={resetForm} className="border border-red-500 text-red-500 py-3 font-bold uppercase hover:bg-red-500 hover:text-black flex items-center justify-center gap-2 transition-all">
-                        <RotateCcw size={20}/> SYSTEM RESET
-                    </button>
-                </div>
-            </section>
-        </div>
+                  <div className="grid grid-cols-2 gap-4 mt-6">
+                      <button 
+                          onClick={copyToClipboard} 
+                          disabled={!cliOutput}
+                          className={`border border-[#00FF41] py-3 font-bold uppercase flex items-center justify-center gap-2 hover:bg-[#00FF41] hover:text-black transition-all ${!cliOutput && 'opacity-50 cursor-not-allowed'}`}
+                      >
+                          <Copy size={20}/> COPY BUFFER
+                      </button>
+                      <button onClick={resetForm} className="border border-red-500 text-red-500 py-3 font-bold uppercase hover:bg-red-500 hover:text-black flex items-center justify-center gap-2 transition-all">
+                          <RotateCcw size={20}/> SYSTEM RESET
+                      </button>
+                  </div>
+              </section>
+          </div>
 
-      </main>
-      
-      <footer className="max-w-4xl mx-auto mt-12 mb-8 text-center text-[#00FF41] opacity-50 text-xs">
-         [ARNO-FPV ENGINEERING] :: SYSTEM_READY
-      </footer>
+        </main>
+        
+        <footer className="max-w-4xl mx-auto mt-12 mb-8 text-center text-[#00FF41] opacity-50 text-xs relative z-20">
+          [ARNO-FPV ENGINEERING] :: SYSTEM_READY
+        </footer>
 
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap');
-        body { font-family: 'JetBrains Mono', monospace; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { bg: #000; }
-        ::-webkit-scrollbar-thumb { bg: #00FF41; }
-      `}</style>
-    </div>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap');
+          body { font-family: 'JetBrains Mono', monospace; background-color: #000; overflow-x: hidden; }
+          ::-webkit-scrollbar { width: 8px; }
+          ::-webkit-scrollbar-track { background: #000; }
+          ::-webkit-scrollbar-thumb { background: #00FF41; }
+        `}</style>
+      </div>
+    </>
   );
 };
 
